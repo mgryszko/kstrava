@@ -2,14 +2,12 @@ package com.grysz.kstrava
 
 import arrow.fx.IO
 import com.github.ajalt.clikt.core.CliktCommand
+import java.io.File
 
-class App {
-    val greeting: IO<String>
-        get() = IO.just("Hello world")
-}
+fun readToken(tokenFileName: String): IO<String> = IO { File(tokenFileName).readText() }
 
 fun main(args: Array<String>) = object : CliktCommand(name = "kstrava") {
     override fun run() {
-        App().greeting.unsafeRunSync()
+        IO.just("Hello world").unsafeRunSync()
     }
 }.main(args)
