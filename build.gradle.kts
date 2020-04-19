@@ -17,7 +17,7 @@ object Versions {
     val clickt = "2.5.0"
     val jackson = "2.10.2"
     val junit = "5.6.2"
-    val assertj = "3.11.1"
+    val atrium = "0.10.0"
 }
 
 dependencies {
@@ -32,7 +32,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junit}")
-    testImplementation("org.assertj:assertj-core:${Versions.assertj}")
+    testImplementation("ch.tutteli.atrium:atrium-fluent-en_GB:${Versions.atrium}")
 }
 
 tasks.test {
