@@ -10,7 +10,6 @@ import ch.tutteli.atrium.creating.Expect
 import ch.tutteli.atrium.creating.FeatureExpect
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
-import java.io.FileNotFoundException
 import kotlin.test.AfterTest
 import kotlin.test.Test
 
@@ -30,7 +29,7 @@ class AppTest {
         @Test
         fun `read token`() {
             accessTokenFile.writeText("::token::")
-            expect(readToken(accessTokenFile.canonicalPath)).run.right.toBe("::token::")
+            expect(readToken(accessTokenFile.canonicalPath)).runE.right.toBe("::token::")
         }
     }
 
@@ -39,13 +38,16 @@ class AppTest {
     inner class MissingAccessToken {
         @Test
         fun `read token`() {
-            expect(readToken("non-existing")).run.left.isA<FileNotFoundException>()
+            expect(readToken("non-existing")).runE.left.toBe(TokenAccessError)
         }
     }
 }
 
 val <A> Expect<IO<A>>.run: FeatureExpect<IO<A>, Either<Throwable, A>>
     get() = feature("unsafeRunSync") { attempt().unsafeRunSync() }
+
+val <A, B> Expect<IO<Either<A, B>>>.runE: FeatureExpect<IO<Either<A, B>>, Either<A, B>>
+    get() = feature("unsafeRunSync") { unsafeRunSync() }
 
 val <A, B> Expect<Either<A, B>>.right: Expect<B>
     get() = isA<Either.Right<B>>().feature { f(it::b) }
