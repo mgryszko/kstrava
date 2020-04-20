@@ -46,7 +46,7 @@ class AppTest {
 val <A> Expect<IO<A>>.run: FeatureExpect<IO<A>, Either<Throwable, A>>
     get() = feature("unsafeRunSync") { attempt().unsafeRunSync() }
 
-val <A, B> Expect<IO<Either<A, B>>>.runE: FeatureExpect<IO<Either<A, B>>, Either<A, B>>
+val <A, B> Expect<IOE<A, B>>.runE: FeatureExpect<IOE<A, B>, Either<A, B>>
     get() = feature("unsafeRunSync") { unsafeRunSync() }
 
 val <A, B> Expect<Either<A, B>>.right: Expect<B>

@@ -5,7 +5,9 @@ import arrow.fx.IO
 import com.github.ajalt.clikt.core.CliktCommand
 import java.io.File
 
-fun readToken(tokenFileName: String): IO<Either<TokenAccessError, String>> = IO {
+typealias IOE<A, B> = IO<Either<A, B>>
+
+fun readToken(tokenFileName: String): IOE<TokenAccessError, String> = IO {
     Either.catch({ _ -> TokenAccessError }, { File(tokenFileName).readText() })
 }
 
