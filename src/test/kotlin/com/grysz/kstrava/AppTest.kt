@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 class AppTest {
     @Nested
-    @DisplayName("missing access token")
+    @DisplayName("existing access token")
     inner class ExistingAccessToken {
         val accessTokenFile = createTempFile().apply {
             delete()
