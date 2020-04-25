@@ -29,6 +29,9 @@ fun getActivities(accessToken: String, baseUrl: String = "https://www.strava.com
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
 
+typealias ReadAccessToken = (String) -> IOE<ListActivitiesError, String>
+typealias GetActivities = (String) -> IOE<ListActivitiesError, List<Activity>>
+
 data class Activity(
     val id: Long,
     val distance: BigDecimal,
@@ -47,14 +50,31 @@ object TokenAccessError : ListActivitiesError()
 
 data class StravaApiError(val exception: Throwable) : ListActivitiesError()
 
+fun listActitivies(
+    readAccessToken: ReadAccessToken,
+    getActivities: GetActivities,
+    accessTokenFileName: String
+): IOE<ListActivitiesError, List<Activity>> =
+    IO.fx {
+        val maybeAccessToken = !readAccessToken(accessTokenFileName)
+        !maybeAccessToken.fold(
+            { l -> IO.just(l.left()) },
+            { accessToken -> getActivities(accessToken) }
+        )
+    }
+
+
 fun app(accessTokenFileName: String): IO<Unit> =
     IO.fx {
-        val tokenOrError = !readAccessToken(accessTokenFileName)
-        !tokenOrError.fold({ e -> IO { println("error: $e") } }, { token -> IO { println("token: $token") } })
+        val maybeActivities = !listActitivies(::readAccessToken, ::getActivities, accessTokenFileName)
+        !maybeActivities.fold(
+            { e -> IO { println("error: $e") } },
+            { activities -> IO { println("activities: $activities") } }
+        )
     }
 
 fun main(args: Array<String>) = object : CliktCommand(name = "kstrava") {
-    val accessTokenFileName: String by option(help="File name containing access token").default(".access-token")
+    val accessTokenFileName: String by option(help = "File name containing access token").default(".access-token")
 
     override fun run() {
         app(accessTokenFileName).unsafeRunSync()

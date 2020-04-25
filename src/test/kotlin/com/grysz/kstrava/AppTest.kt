@@ -1,6 +1,7 @@
 package com.grysz.kstrava
 
 import arrow.core.Either
+import arrow.core.right
 import arrow.fx.IO
 import ch.tutteli.atrium.api.fluent.en_GB.feature
 import ch.tutteli.atrium.api.fluent.en_GB.isA
@@ -11,6 +12,8 @@ import ch.tutteli.atrium.creating.FeatureExpect
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -93,6 +96,24 @@ class GetActivitiesTest {
                 type = "::type::"
             )
         ))
+    }
+}
+
+class ListActivitiesWorkflowTest {
+    val readAccessToken: ReadAccessToken = mockk("readAccessToken")
+    val getActivities: GetActivities = mockk("getActivities")
+
+    val accessTokenFileName = "::file::"
+    val accessToken = "::token::"
+    val activity = Activity(0, 0.0.toBigDecimal(), "", "", false, "", "", "", "")
+    val activities = listOf(activity)
+
+    @Test
+    fun list() {
+        every { readAccessToken(accessTokenFileName) } returns IO.just(accessToken.right())
+        every { getActivities(accessToken) } returns IO.just(activities.right())
+
+        expect(listActitivies(readAccessToken, getActivities, accessTokenFileName)).runE.right.toBe(activities)
     }
 }
 

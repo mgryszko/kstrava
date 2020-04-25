@@ -1,5 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
@@ -13,13 +14,13 @@ repositories {
 }
 
 object Versions {
-    val arrow = "0.10.5"
-    val clickt = "2.5.0"
-    val fuel = "2.2.0"
-    val jackson = "2.10.2"
-    val junit = "5.6.2"
-    val atrium = "0.10.0"
-    val wiremock = "2.26.3"
+    const val arrow = "0.10.5"
+    const val clickt = "2.5.0"
+    const val fuel = "2.2.0"
+    const val jackson = "2.10.2"
+    const val junit = "5.6.2"
+    const val atrium = "0.10.0"
+    const val wiremock = "2.26.3"
 }
 
 dependencies {
@@ -38,6 +39,13 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junit}")
     testImplementation("ch.tutteli.atrium:atrium-fluent-en_GB:${Versions.atrium}")
     testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wiremock}")
+    testImplementation("io.mockk:mockk:1.10.0")
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    languageVersion = "1.3"
+    freeCompilerArgs += listOf("-XXLanguage:+NewInference")
 }
 
 tasks.test {
