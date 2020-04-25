@@ -80,7 +80,7 @@ class GetActivitiesTest {
     "type": "::type::"
 }]""")))
 
-        expect(getActivities(accessToken, "http://localhost:${wm.port()}")).right.toBe(listOf(
+        expect(getActivities(accessToken, "http://localhost:${wm.port()}")).runE.right.toBe(listOf(
             Activity(
                 id = 1,
                 distance = 101.22.toBigDecimal(),

@@ -21,13 +21,13 @@ fun readToken(tokenFileName: String): IOE<TokenAccessError, String> = IO {
     Either.catch({ _ -> TokenAccessError }, { File(tokenFileName).readText() })
 }
 
-fun getActivities(accessToken: String, baseUrl: String = "https://www.strava.com"): Either<FuelError, List<Activity>> {
+fun getActivities(accessToken: String, baseUrl: String = "https://www.strava.com"): IO<Either<FuelError, List<Activity>>> = IO {
     val path = "$baseUrl/api/v3/athlete/activities"
 
     val (_, _, result) = Fuel.get(path)
         .header(Headers.AUTHORIZATION, "Bearer $accessToken")
         .responseObject<List<Activity>>()
-    return result.fold({ it.right() }, { it.left() })
+    result.fold({ it.right() }, { it.left() })
 }
 
 data class Activity(
