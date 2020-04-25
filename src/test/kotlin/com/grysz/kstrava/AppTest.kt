@@ -34,7 +34,7 @@ class ReadTokenTest {
         @Test
         fun `read token`() {
             accessTokenFile.writeText("::token::")
-            expect(readToken(accessTokenFile.canonicalPath)).runE.right.toBe("::token::")
+            expect(readAccessToken(accessTokenFile.canonicalPath)).runE.right.toBe("::token::")
         }
     }
 
@@ -43,7 +43,7 @@ class ReadTokenTest {
     inner class MissingAccessToken {
         @Test
         fun `read token`() {
-            expect(readToken("non-existing")).runE.left.toBe(TokenAccessError)
+            expect(readAccessToken("non-existing")).runE.left.toBe(TokenAccessError)
         }
     }
 }
