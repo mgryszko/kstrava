@@ -1,10 +1,18 @@
 package com.grysz.kstrava
 
+import arrow.Kind
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import arrow.fx.ForIO
 import arrow.fx.IO
-import arrow.fx.extensions.fx
+import arrow.fx.extensions.io.functor.functor
+import arrow.fx.extensions.io.monad.monad
+import arrow.fx.fix
+import arrow.mtl.EitherT
+import arrow.mtl.extensions.eithert.monad.monad
+import arrow.mtl.fix
+import arrow.typeclasses.Monad
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
@@ -28,9 +36,6 @@ fun getActivities(accessToken: AccessToken, baseUrl: String = "https://www.strav
         .responseObject<List<Activity>>()
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
-
-typealias ReadAccessToken = (String) -> IOE<ListActivitiesError, AccessToken>
-typealias GetActivities = (AccessToken) -> IOE<ListActivitiesError, List<Activity>>
 
 data class AccessToken(val token: String) {
     init {
@@ -56,28 +61,34 @@ object TokenAccessError : ListActivitiesError()
 
 data class StravaApiError(val exception: Throwable) : ListActivitiesError()
 
-fun listActitivies(
-    readAccessToken: ReadAccessToken,
-    getActivities: GetActivities,
+fun <F> listActitivies(
+    M: Monad<F>,
+    readAccessToken: (String) -> Kind<F, AccessToken>,
+    getActivities: (AccessToken) -> Kind<F, List<Activity>>,
     accessTokenFileName: String
-): IOE<ListActivitiesError, List<Activity>> =
-    IO.fx {
-        val maybeAccessToken = !readAccessToken(accessTokenFileName)
-        !maybeAccessToken.fold(
-            { l -> IO.just(l.left()) },
-            { accessToken -> getActivities(accessToken) }
-        )
+): Kind<F, List<Activity>> =
+    M.fx.monad {
+        val accessToken = !readAccessToken(accessTokenFileName)
+        !getActivities(accessToken)
     }
 
+fun <E, F, A, B> lift(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
+    { a -> EitherT(f(a)) }
 
-fun app(accessTokenFileName: String): IO<Unit> =
-    IO.fx {
-        val maybeActivities = !listActitivies(::readAccessToken, ::getActivities, accessTokenFileName)
-        !maybeActivities.fold(
-            { e -> IO { println("error: $e") } },
-            { activities -> IO { println("activities: $activities") } }
-        )
-    }
+fun app(accessTokenFileName: String): IO<Unit> {
+    val M = EitherT.monad<ListActivitiesError, ForIO>(IO.monad())
+    val maybeActivities = listActitivies(
+        M,
+        lift(::readAccessToken),
+        lift(::getActivities),
+        accessTokenFileName
+    ).fix()
+    return maybeActivities.fold(
+        IO.functor(),
+        { e -> println("error: $e") },
+        { activities -> println("activities: $activities") }
+    ).fix()
+}
 
 fun main(args: Array<String>) = object : CliktCommand(name = "kstrava") {
     val accessTokenFileName: String by option(help = "File name containing access token").default(".access-token")

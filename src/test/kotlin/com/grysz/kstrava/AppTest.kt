@@ -1,7 +1,8 @@
 package com.grysz.kstrava
 
-import arrow.core.Either
-import arrow.core.right
+import arrow.Kind
+import arrow.core.*
+import arrow.core.extensions.id.monad.monad
 import arrow.fx.IO
 import ch.tutteli.atrium.api.fluent.en_GB.feature
 import ch.tutteli.atrium.api.fluent.en_GB.isA
@@ -101,8 +102,8 @@ class GetActivitiesTest {
 }
 
 class ListActivitiesWorkflowTest {
-    val readAccessToken: ReadAccessToken = mockk("readAccessToken")
-    val getActivities: GetActivities = mockk("getActivities")
+    val readAccessToken: (String) -> Kind<ForId, AccessToken> = mockk("readAccessToken")
+    val getActivities: (AccessToken) -> Kind<ForId, List<Activity>> = mockk("getActivities")
 
     val accessTokenFileName = "::file::"
     val accessToken = AccessToken("::token::")
@@ -111,10 +112,10 @@ class ListActivitiesWorkflowTest {
 
     @Test
     fun list() {
-        every { readAccessToken(accessTokenFileName) } returns IO.just(accessToken.right())
-        every { getActivities(accessToken) } returns IO.just(activities.right())
+        every { readAccessToken(accessTokenFileName) } returns Id(accessToken)
+        every { getActivities(accessToken) } returns Id(activities)
 
-        expect(listActitivies(readAccessToken, getActivities, accessTokenFileName)).runE.right.toBe(activities)
+        expect(listActitivies(Id.monad(), readAccessToken, getActivities, accessTokenFileName)).value.toBe(activities)
     }
 }
 
@@ -123,6 +124,9 @@ val <A> Expect<IO<A>>.run: FeatureExpect<IO<A>, Either<Throwable, A>>
 
 val <A, B> Expect<IOE<A, B>>.runE: FeatureExpect<IOE<A, B>, Either<A, B>>
     get() = feature("unsafeRunSync") { unsafeRunSync() }
+
+val <A> Expect<Kind<ForId, A>>.value: FeatureExpect<Kind<ForId, A>, A>
+    get() = feature("value") { fix().value() }
 
 val <A, B> Expect<Either<A, B>>.right: Expect<B>
     get() = isA<Either.Right<B>>().feature { f(it::b) }
