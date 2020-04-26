@@ -11,6 +11,7 @@ import ch.tutteli.atrium.creating.Expect
 import ch.tutteli.atrium.creating.FeatureExpect
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import io.mockk.every
 import io.mockk.mockk
@@ -37,7 +38,7 @@ class ReadTokenTest {
         @Test
         fun `read token`() {
             accessTokenFile.writeText("::token::")
-            expect(readAccessToken(accessTokenFile.canonicalPath)).runE.right.toBe("::token::")
+            expect(readAccessToken(accessTokenFile.canonicalPath)).runE.right.toBe(AccessToken("::token::"))
         }
     }
 
@@ -52,9 +53,9 @@ class ReadTokenTest {
 }
 
 class GetActivitiesTest {
-    val wm: WireMockServer = WireMockServer(options().dynamicPort())
+    val wm: WireMockServer = WireMockServer(options().dynamicPort().notifier(ConsoleNotifier(false)))
 
-    val accessToken = "::token::"
+    val accessToken = AccessToken("::token::")
 
     @BeforeEach
     fun setUp() {
@@ -70,7 +71,7 @@ class GetActivitiesTest {
     fun ok() {
         wm.stubFor(
             get(urlMatching("/api/v3/athlete/activities"))
-                .withHeader("Authorization", equalTo("Bearer $accessToken"))
+                .withHeader("Authorization", equalTo("Bearer ${accessToken.token}"))
                 .willReturn(okJson("""[{
     "id": 1,
     "distance": 101.22,
@@ -104,7 +105,7 @@ class ListActivitiesWorkflowTest {
     val getActivities: GetActivities = mockk("getActivities")
 
     val accessTokenFileName = "::file::"
-    val accessToken = "::token::"
+    val accessToken = AccessToken("::token::")
     val activity = Activity(0, 0.0.toBigDecimal(), "", "", false, "", "", "", "")
     val activities = listOf(activity)
 

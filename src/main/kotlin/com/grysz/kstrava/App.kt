@@ -16,21 +16,27 @@ import java.math.BigDecimal
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
-fun readAccessToken(tokenFileName: String): IOE<ListActivitiesError, String> = IO {
-    Either.catch({ _ -> TokenAccessError }, { File(tokenFileName).readText() })
+fun readAccessToken(tokenFileName: String): IOE<ListActivitiesError, AccessToken> = IO {
+    Either.catch({ _ -> TokenAccessError }, { AccessToken(File(tokenFileName).readText()) })
 }
 
-fun getActivities(accessToken: String, baseUrl: String = "https://www.strava.com"): IOE<ListActivitiesError, List<Activity>> = IO {
+fun getActivities(accessToken: AccessToken, baseUrl: String = "https://www.strava.com"): IOE<ListActivitiesError, List<Activity>> = IO {
     val path = "$baseUrl/api/v3/athlete/activities"
 
     val (_, _, result) = Fuel.get(path)
-        .header(Headers.AUTHORIZATION, "Bearer $accessToken")
+        .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .responseObject<List<Activity>>()
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
 
-typealias ReadAccessToken = (String) -> IOE<ListActivitiesError, String>
-typealias GetActivities = (String) -> IOE<ListActivitiesError, List<Activity>>
+typealias ReadAccessToken = (String) -> IOE<ListActivitiesError, AccessToken>
+typealias GetActivities = (AccessToken) -> IOE<ListActivitiesError, List<Activity>>
+
+data class AccessToken(val token: String) {
+    init {
+        require(token.isNotBlank()) { "token must not be blank" }
+    }
+}
 
 data class Activity(
     val id: Long,
