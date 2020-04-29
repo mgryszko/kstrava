@@ -20,6 +20,7 @@ object Versions {
     const val jackson = "2.10.2"
     const val junit = "5.6.2"
     const val atrium = "0.10.0"
+    const val mockk = "1.10.0"
     const val wiremock = "2.26.3"
 }
 
@@ -40,7 +41,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junit}")
     testImplementation("ch.tutteli.atrium:atrium-fluent-en_GB:${Versions.atrium}")
     testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wiremock}")
-    testImplementation("io.mockk:mockk:1.10.0")
+    testImplementation("io.mockk:mockk:${Versions.mockk}")
 }
 
 val compileKotlin: KotlinCompile by tasks
