@@ -13,7 +13,7 @@ fun printActivitiesTable(activities: List<Activity>) {
 
     val columns = adjustColumnsToFitContent(List(renderers.size) { Column(1) }, activities, renderers)
 
-    val formatSpec = columns.map(Column::format).joinToString(" | ")
+    val formatSpec = columns.joinToString(" | ", transform = Column::format)
     activities.forEach { activity ->
         val activityRow = formatSpec.format(*renderers.map { it.render(activity) }.toTypedArray())
         println(activityRow)
