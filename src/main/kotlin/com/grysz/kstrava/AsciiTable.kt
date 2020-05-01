@@ -1,13 +1,11 @@
 package com.grysz.kstrava
 
-fun <A> adjustColumnsToFitContent(
-    initial: List<Column<A>>,
-    values: List<A>
-): List<Column<A>> = values.fold(initial) { columns, value ->
-    columns.fold(emptyList()) { acc: List<Column<A>>, column: Column<A> ->
-        acc + if (column.width(value) > column.width) column.copy(width = column.width(value)) else column
+fun <A> adjustColumnsToFitContent(table: List<Column<A>>, values: List<A>): List<Column<A>> =
+    values.fold(table) { columns, value ->
+        columns.fold(emptyList()) { acc: List<Column<A>>, column: Column<A> ->
+            acc + if (column.width(value) > column.width) column.copy(width = column.width(value)) else column
+        }
     }
-}
 
 fun <A> render(table: List<Column<A>>, values: List<A>) {
     val formatSpec = table.joinToString(" | ", transform = Column<A>::format)
