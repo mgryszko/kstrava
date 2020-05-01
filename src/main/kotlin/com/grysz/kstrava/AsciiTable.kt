@@ -1,34 +1,30 @@
 package com.grysz.kstrava
 
 fun <A> adjustColumnsToFitContent(
-    initial: List<Column>,
-    values: List<A>,
-    renderers: List<CellRenderer<A>>
-): List<Column> = values.fold(initial) { columns, value ->
-    columns.zip(renderers).fold(emptyList()) { acc: List<Column>, (column: Column, renderer: CellRenderer<A>) ->
-        acc + if (renderer.width(value) > column.width) column.copy(width = renderer.width(value)) else column
+    initial: List<Column<A>>,
+    values: List<A>
+): List<Column<A>> = values.fold(initial) { columns, value ->
+    columns.fold(emptyList()) { acc: List<Column<A>>, column: Column<A> ->
+        acc + if (column.width(value) > column.width) column.copy(width = column.width(value)) else column
     }
 }
 
-fun <A> render(columns: List<Column>, renderers: List<CellRenderer<A>>, values: List<A>) {
-    val formatSpec = columns.joinToString(" | ", transform = Column::format)
-    values.forEach { activity ->
-        val activityRow = formatSpec.format(*renderers.map { it.render(activity) }.toTypedArray())
-        println(activityRow)
+fun <A> render(table: List<Column<A>>, values: List<A>) {
+    val formatSpec = table.joinToString(" | ", transform = Column<A>::format)
+    values.forEach { value ->
+        val row = formatSpec.format(*table.map { it.render(value) }.toTypedArray())
+        println(row)
     }
 }
 
-data class Column(val width: Int) {
+data class Column<in A>(val cellRenderer: (A) -> String, val width: Int = 1) {
     init {
         require(width > 0) { "Width must be positive" }
     }
 
     fun format(): String = "%-${width}s"
+
+    fun width(a: A): Int = cellRenderer(a).length
+
+    fun render(a: A): String = cellRenderer(a)
 }
-
-class CellRenderer<in A>(val value: (A) -> String) {
-    fun width(a: A): Int = value(a).length
-
-    fun render(a: A): String = value(a)
-}
-
