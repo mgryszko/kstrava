@@ -86,7 +86,7 @@ fun app(accessTokenFileName: String): IO<Unit> {
     return maybeActivities.fold(
         IO.functor(),
         { e -> println("error: $e") },
-        { activities -> println("activities: $activities") }
+        ::printActivitiesTable
     ).fix()
 }
 
