@@ -11,16 +11,22 @@ fun printActivitiesTable(activities: List<Activity>) {
 
     val renderers = listOf(idRenderer, startDateRenderer, typeRenderer, nameRenderer, distanceRenderer, gearIdRenderer, privateRenderer)
 
-    val columns = activities.fold(List(renderers.size) { Column(1) }) { columns, activity ->
-        columns.zip(renderers).fold(emptyList()) { acc: List<Column>, (column: Column, renderer: CellRenderer<Activity>) ->
-            acc + if (renderer.width(activity) > column.width) column.copy(width = renderer.width(activity)) else column
-        }
-    }
+    val columns = adjustColumnsToFitContent(List(renderers.size) { Column(1) }, activities, renderers)
 
     val formatSpec = columns.map(Column::format).joinToString(" | ")
     activities.forEach { activity ->
         val activityRow = formatSpec.format(*renderers.map { it.render(activity) }.toTypedArray())
         println(activityRow)
+    }
+}
+
+private fun <A> adjustColumnsToFitContent(
+    initial: List<Column>,
+    values: List<A>,
+    renderers: List<CellRenderer<A>>
+): List<Column> = values.fold(initial) { columns, value ->
+    columns.zip(renderers).fold(emptyList()) { acc: List<Column>, (column: Column, renderer: CellRenderer<A>) ->
+        acc + if (renderer.width(value) > column.width) column.copy(width = renderer.width(value)) else column
     }
 }
 
