@@ -7,11 +7,11 @@ fun <A> adjustColumnsToFitContent(table: List<Column<A>>, values: List<A>): List
         }
     }
 
-fun <A> render(table: List<Column<A>>, values: List<A>) {
+fun <A> render(table: List<Column<A>>, values: List<A>, forEachRow: (String) -> Unit = ::println) {
     val formatSpec = table.joinToString(" | ", transform = Column<A>::format)
     values.forEach { value ->
         val row = formatSpec.format(*table.map { it.render(value) }.toTypedArray())
-        println(row)
+        forEachRow(row)
     }
 }
 
