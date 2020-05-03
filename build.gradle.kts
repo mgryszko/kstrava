@@ -11,6 +11,7 @@ plugins {
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 object Versions {
@@ -22,6 +23,7 @@ object Versions {
     const val atrium = "0.10.0"
     const val mockk = "1.10.0"
     const val wiremock = "2.26.3"
+    const val slf4j = "1.7.30"
 }
 
 dependencies {
@@ -41,6 +43,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junit}")
     testImplementation("ch.tutteli.atrium:atrium-fluent-en_GB:${Versions.atrium}")
     testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wiremock}")
+    testImplementation("org.slf4j:slf4j-nop:${Versions.slf4j}")
     testImplementation("io.mockk:mockk:${Versions.mockk}")
 }
 
