@@ -50,7 +50,7 @@ dependencies {
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     languageVersion = "1.3"
-    freeCompilerArgs += listOf("-XXLanguage:+NewInference")
+    freeCompilerArgs += listOf("-Xnew-inference")
 }
 
 tasks.test {
