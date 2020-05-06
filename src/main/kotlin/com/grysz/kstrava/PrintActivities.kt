@@ -1,16 +1,24 @@
 package com.grysz.kstrava
 
-private val idColumn: CellRenderer<Activity> = { it.id.toString() }
-private val startDateColumn: CellRenderer<Activity> = Activity::start_date
-private val typeColumn: CellRenderer<Activity> = Activity::type
-private val nameColumn: CellRenderer<Activity> = Activity::name
-private val distanceColumn: CellRenderer<Activity> = { it.distance.toString() }
-private val gearIdColumn: CellRenderer<Activity> = { it.gear_id ?: "" }
-private val privateColumn: CellRenderer<Activity> = { if (it.private) "+" else "" }
-private val renderers = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, privateColumn)
+private val idColumn: MinWidthColumn = MinWidthColumn(Header("id"))
+private val startDateColumn: MinWidthColumn = MinWidthColumn(Header("start date"))
+private val typeColumn: MinWidthColumn = MinWidthColumn(Header("type"))
+private val nameColumn: MinWidthColumn = MinWidthColumn(Header("name"))
+private val distanceColumn: MinWidthColumn = MinWidthColumn(Header("m"))
+private val gearIdColumn: MinWidthColumn = MinWidthColumn(Header("gear id"))
+private val privateColumn: MinWidthColumn = MinWidthColumn(Header("p"))
+private val columns = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, privateColumn)
+
+private val idRenderer: CellRenderer<Activity> = { it.id.toString() }
+private val startDateRenderer: CellRenderer<Activity> = Activity::start_date
+private val typeRenderer: CellRenderer<Activity> = Activity::type
+private val nameRenderer: CellRenderer<Activity> = Activity::name
+private val distanceRenderer: CellRenderer<Activity> = { it.distance.toString() }
+private val gearIdRenderer: CellRenderer<Activity> = { it.gear_id ?: "" }
+private val privateRenderer: CellRenderer<Activity> = { if (it.private) "+" else "" }
+private val renderers = listOf(idRenderer, startDateRenderer, typeRenderer, nameRenderer, distanceRenderer, gearIdRenderer, privateRenderer)
+private val table = Table(columns, renderers)
 
 fun printActivitiesTable(activities: List<Activity>) {
-    val columns = columnsFittingContent(renderers, activities)
-    val table = Table(columns, renderers)
-    table.render(activities)
+    table.fitContent(activities).render(activities)
 }

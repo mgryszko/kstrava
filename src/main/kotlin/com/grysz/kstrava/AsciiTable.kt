@@ -1,6 +1,12 @@
 package com.grysz.kstrava
 
-data class MinWidthColumn(val width: Int) {
+data class Header(val text: String) {
+    fun width(): Int = text.length
+}
+
+data class MinWidthColumn(val header: Header, val width: Int) {
+    constructor(header: Header) : this(header, width = header.width())
+
     init {
         require(width > 0) { "Width must be positive" }
     }
@@ -18,20 +24,28 @@ data class Table<in A>(val columns: List<MinWidthColumn>, val renderers: List<Ce
         require(columns.size == renderers.size) { "Each column must have a corresponding renderer" }
     }
 
-    fun render(values: List<A>, forEachRow: (String) -> Unit = ::println) {
-        val formatSpec = columns.joinToString(" | ", transform = MinWidthColumn::format)
-        values.forEach { value ->
-            val row = formatSpec.format(*renderers.map { it(value) }.toTypedArray())
-            forEachRow(row)
+    fun render(values: List<A>, renderRow: (String) -> Unit = ::println) {
+        val format = columnStringFormat()
+        renderRow(headerRow(format))
+        renderRow(separatorRow())
+        values.forEach { renderRow(valueRow(format, it)) }
+    }
+
+    private fun columnStringFormat() = columns.joinToString(" | ", transform = MinWidthColumn::format)
+
+    private fun headerRow(formatSpec: String) = formatSpec.format(*columns.map { it.header.text }.toTypedArray())
+
+    private fun separatorRow() = columns.joinToString(" | ", transform = { "-".repeat(it.width) })
+
+    private fun valueRow(formatSpec: String, value: A) = formatSpec.format(*renderers.map { it(value) }.toTypedArray())
+
+    fun fitContent(values: List<A>): Table<A> {
+        val newColumns = values.fold(columns) { newColumns, value ->
+            newColumns.zip(renderers) .fold(emptyList()) { acc: List<MinWidthColumn>, (column: MinWidthColumn, renderer: CellRenderer<A>) ->
+                    acc + column.fitTo(renderer(value).length)
+                }
         }
+        return copy(columns = newColumns, renderers = renderers)
     }
 }
 
-fun <A> columnsFittingContent(renderers: List<CellRenderer<A>>, values: List<A>): List<MinWidthColumn> {
-    val initial = renderers.map { MinWidthColumn(1) }
-    return values.fold(initial) { columns, value ->
-        columns.zip(renderers).fold(emptyList()) { acc: List<MinWidthColumn>, (column: MinWidthColumn, renderer: CellRenderer<A>) ->
-            acc + column.fitTo(renderer(value).length)
-        }
-    }
-}

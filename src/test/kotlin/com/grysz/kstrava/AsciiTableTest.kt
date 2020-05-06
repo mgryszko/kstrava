@@ -7,17 +7,25 @@ import org.junit.jupiter.api.Test
 
 internal class AsciiTableTest {
     @Test
-    fun `adjust columns to fit content`() {
-        val renderers = listOf<CellRenderer<String>>({ it }, { it + it })
+    fun `adjust table to fit content`() {
+        val table = Table(
+            columns = listOf(MinWidthColumn(header = Header("bb")), MinWidthColumn(header = Header("bbbbbbbb"))),
+            renderers = listOf<(String) -> String>({ it }, { it + it })
+        )
         val values = listOf("", "a", "aa", "aaa")
 
-        expect(columnsFittingContent(renderers, values)).toBe(listOf(MinWidthColumn(3), MinWidthColumn(6)))
+        expect(table.fitContent(values)).toBe(
+            Table(
+                columns = listOf(MinWidthColumn(header = Header("bb"), width = 3), MinWidthColumn(header = Header("bbbbbbbb"), width = 8)),
+                renderers = table.renderers
+            )
+        )
     }
 
     @Test
     fun render() {
         val table = Table(
-            columns = listOf(MinWidthColumn(3), MinWidthColumn(6)),
+            columns = listOf(MinWidthColumn(header = Header("first"), width = 5), MinWidthColumn(header = Header("second"), width = 6)),
             renderers = listOf<(String) -> String>({ it }, { it + it })
         )
         val values = listOf("", "a", "aa", "aaa")
@@ -26,10 +34,12 @@ internal class AsciiTableTest {
         table.render(values) { rows += it }
 
         expect(rows.toList()).containsExactly(
-            "    |       ",
-            "a   | aa    ",
-            "aa  | aaaa  ",
-            "aaa | aaaaaa"
+            "first | second",
+            "----- | ------",
+            "      |       ",
+            "a     | aa    ",
+            "aa    | aaaa  ",
+            "aaa   | aaaaaa"
         )
     }
 }
