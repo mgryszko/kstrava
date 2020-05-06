@@ -31,11 +31,13 @@ data class Table<in A>(val columns: List<MinWidthColumn>, val renderers: List<Ce
         values.forEach { renderRow(valueRow(format, it)) }
     }
 
-    private fun columnStringFormat() = columns.joinToString(" | ", transform = MinWidthColumn::format)
+    private val columnSeparator = " "
+
+    private fun columnStringFormat() = columns.joinToString(columnSeparator, transform = MinWidthColumn::format)
 
     private fun headerRow(formatSpec: String) = formatSpec.format(*columns.map { it.header.text }.toTypedArray())
 
-    private fun separatorRow() = columns.joinToString(" | ", transform = { "-".repeat(it.width) })
+    private fun separatorRow() = columns.joinToString(columnSeparator, transform = { "-".repeat(it.width) })
 
     private fun valueRow(formatSpec: String, value: A) = formatSpec.format(*renderers.map { it(value) }.toTypedArray())
 

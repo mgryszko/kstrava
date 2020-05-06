@@ -34,12 +34,12 @@ internal class AsciiTableTest {
         table.render(values) { rows += it }
 
         expect(rows.toList()).containsExactly(
-            "first | second",
-            "----- | ------",
-            "      |       ",
-            "a     | aa    ",
-            "aa    | aaaa  ",
-            "aaa   | aaaaaa"
+            "first second",
+            "----- ------",
+            "            ",
+            "a     aa    ",
+            "aa    aaaa  ",
+            "aaa   aaaaaa"
         )
     }
 }
