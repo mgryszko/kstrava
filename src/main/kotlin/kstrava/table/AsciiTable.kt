@@ -1,4 +1,4 @@
-package com.grysz.kstrava
+package com.grysz.kstrava.table
 
 data class Header(val text: String) {
     fun width(): Int = text.length

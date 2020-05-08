@@ -1,5 +1,10 @@
 package com.grysz.kstrava
 
+import com.grysz.kstrava.table.CellRenderer
+import com.grysz.kstrava.table.Header
+import com.grysz.kstrava.table.MinWidthColumn
+import com.grysz.kstrava.table.Table
+
 private val idColumn: MinWidthColumn = MinWidthColumn(Header("id"))
 private val startDateColumn: MinWidthColumn = MinWidthColumn(Header("start date"))
 private val typeColumn: MinWidthColumn = MinWidthColumn(Header("type"))

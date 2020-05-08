@@ -1,4 +1,4 @@
-package com.grysz.kstrava
+package com.grysz.kstrava.table
 
 import ch.tutteli.atrium.api.fluent.en_GB.containsExactly
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
