@@ -10,7 +10,7 @@ internal class AsciiTableTest {
     fun `adjust table to fit content`() {
         val table = Table(
             columns = listOf(MinWidthColumn(header = Header("bb")), MinWidthColumn(header = Header("bbbbbbbb"))),
-            renderers = listOf<(String) -> String>({ it }, { it + it })
+            renderers = listOf<CellRenderer<String>>({ it }, { it + it })
         )
         val values = listOf("", "a", "aa", "aaa")
 
@@ -26,7 +26,7 @@ internal class AsciiTableTest {
     fun render() {
         val table = Table(
             columns = listOf(MinWidthColumn(header = Header("first"), width = 5), MinWidthColumn(header = Header("second"), width = 6)),
-            renderers = listOf<(String) -> String>({ it }, { it + it })
+            renderers = listOf<CellRenderer<String>>({ it }, { it + it })
         )
         val values = listOf("", "a", "aa", "aaa")
 
