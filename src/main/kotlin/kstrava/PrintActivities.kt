@@ -4,6 +4,7 @@ import com.grysz.kstrava.table.CellRenderer
 import com.grysz.kstrava.table.Header
 import com.grysz.kstrava.table.MinWidthColumn
 import com.grysz.kstrava.table.Table
+import com.grysz.kstrava.table.fitContent
 import com.grysz.kstrava.table.render
 
 private val idColumn: MinWidthColumn = MinWidthColumn(Header("id"))
