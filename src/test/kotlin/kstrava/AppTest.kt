@@ -16,7 +16,6 @@ import ch.tutteli.atrium.creating.Expect
 import ch.tutteli.atrium.creating.FeatureExpect
 import io.mockk.every
 import io.mockk.mockk
-import kstrava.api.ApiActivity
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import kotlin.test.AfterTest
@@ -54,19 +53,17 @@ class ReadTokenTest {
 
 class ListActivitiesWorkflowTest {
     val readAccessToken: (String) -> Kind<ForId, AccessToken> = mockk("readAccessToken")
-    val getActivities: (AccessToken) -> Kind<ForId, List<ApiActivity>> = mockk("getActivities")
+    val getActivities: (AccessToken) -> Kind<ForId, List<Activity>> = mockk("getActivities")
 
     val accessTokenFileName = "::file::"
     val accessToken = AccessToken("::token::")
-    val apiActivity = ApiActivity(0, 123.56.toBigDecimal(), "", "", false, "", "", "", "")
-    val apiActivities = listOf(apiActivity)
-    val activity = Activity(0, Distance(123), "", "", false, "", "", "", "")
+    val activity = Activity(0, Distance(1), "", "", false, "", "", "", "")
     val activities = listOf(activity)
 
     @Test
     fun list() {
         every { readAccessToken(accessTokenFileName) } returns Id(accessToken)
-        every { getActivities(accessToken) } returns Id(apiActivities)
+        every { getActivities(accessToken) } returns Id(activities)
 
         expect(listActitivies(Id.monad(), readAccessToken, getActivities, accessTokenFileName)).value.toBe(activities)
     }

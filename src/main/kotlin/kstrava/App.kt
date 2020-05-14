@@ -8,17 +8,16 @@ import arrow.fx.extensions.io.functor.functor
 import arrow.fx.extensions.io.monad.monad
 import arrow.fx.fix
 import arrow.mtl.EitherT
+import arrow.mtl.EitherTPartialOf
 import arrow.mtl.extensions.eithert.monad.monad
 import arrow.mtl.fix
 import arrow.typeclasses.Monad
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import kstrava.api.ApiActivity
 import kstrava.api.getActivities
+import kstrava.api.getAthleteActivities
 import java.io.File
-import java.math.MathContext
-import java.math.RoundingMode
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
@@ -59,36 +58,27 @@ data class StravaApiError(val exception: Throwable) : ListActivitiesError()
 fun <F> listActitivies(
     M: Monad<F>,
     readAccessToken: (String) -> Kind<F, AccessToken>,
-    getActivities: (AccessToken) -> Kind<F, List<ApiActivity>>,
+    getActivities: (AccessToken) -> Kind<F, List<Activity>>,
     accessTokenFileName: String
 ): Kind<F, List<Activity>> =
     M.fx.monad {
         val accessToken = !readAccessToken(accessTokenFileName)
-        val apiActivities = !getActivities(accessToken)
-        apiActivities.map {
-            Activity(
-                id = it.id,
-                distance = Distance(meters = it.distance.round(MathContext(0, RoundingMode.FLOOR)).toInt()),
-                gear_id = it.gear_id,
-                name = it.name,
-                private = it.private,
-                start_date = it.start_date,
-                start_date_local = it.start_date_local,
-                timezone = it.timezone,
-                type = it.type
-            )
-        }
+        !getActivities(accessToken)
     }
 
 fun <E, F, A, B> lift(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
     { a -> EitherT(f(a)) }
 
 fun app(accessTokenFileName: String): IO<Unit> {
-    val M = EitherT.monad<ListActivitiesError, ForIO>(IO.monad())
+    val M: Monad<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.monad(IO.monad())
+    val readAccessToken = lift(::readAccessToken)
+    val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
+        { accessToken: AccessToken -> getActivities(M, lift(::getAthleteActivities), accessToken) }
+
     val maybeActivities = listActitivies(
         M,
-        lift(::readAccessToken),
-        lift(::getActivities),
+        readAccessToken,
+        getActivities,
         accessTokenFileName
     ).fix()
     return maybeActivities.fold(
