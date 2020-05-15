@@ -21,47 +21,6 @@ import kstrava.token.readAccessToken
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
-data class AccessToken(val token: String) {
-    init {
-        require(token.isNotBlank()) { "token must not be blank" }
-    }
-}
-
-data class Activity(
-    val id: Long,
-    val distance: Distance,
-    val gear_id: String?,
-    val name: String,
-    val private: Boolean,
-    val start_date: String,
-    val start_date_local: String,
-    val timezone: String,
-    val type: String
-)
-
-data class Distance(val meters: Int) {
-    init {
-        require(meters > 0) { "distance in meters must be greater than 0" }
-    }
-}
-
-sealed class ListActivitiesError
-
-object TokenAccessError : ListActivitiesError()
-
-data class StravaApiError(val exception: Throwable) : ListActivitiesError()
-
-fun <F> listActitivies(
-    M: Monad<F>,
-    readAccessToken: (String) -> Kind<F, AccessToken>,
-    getActivities: (AccessToken) -> Kind<F, List<Activity>>,
-    accessTokenFileName: String
-): Kind<F, List<Activity>> =
-    M.fx.monad {
-        val accessToken = !readAccessToken(accessTokenFileName)
-        !getActivities(accessToken)
-    }
-
 fun <E, F, A, B> lift(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
     { a -> EitherT(f(a)) }
 
