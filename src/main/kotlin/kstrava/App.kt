@@ -17,13 +17,9 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import kstrava.strava.getActivities
 import kstrava.strava.getAthleteActivities
-import java.io.File
+import kstrava.token.readAccessToken
 
 typealias IOE<A, B> = IO<Either<A, B>>
-
-fun readAccessToken(tokenFileName: String): IOE<ListActivitiesError, AccessToken> = IO {
-    Either.catch({ _ -> TokenAccessError }, { AccessToken(File(tokenFileName).readText()) })
-}
 
 data class AccessToken(val token: String) {
     init {
