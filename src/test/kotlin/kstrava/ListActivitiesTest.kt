@@ -11,7 +11,7 @@ import io.mockk.mockk
 import kstrava.activity
 import kotlin.test.Test
 
-class ListActivitiesWorkflowTest {
+class ListActivitiesTest {
     val readAccessToken: (String) -> Kind<ForId, AccessToken> = mockk("readAccessToken")
     val getActivities: (AccessToken) -> Kind<ForId, List<Activity>> = mockk("getActivities")
 
@@ -20,7 +20,7 @@ class ListActivitiesWorkflowTest {
     val activities = listOf(activity)
 
     @Test
-    fun list() {
+    fun execute() {
         every { readAccessToken(accessTokenFileName) } returns Id(accessToken)
         every { getActivities(accessToken) } returns Id(activities)
 
