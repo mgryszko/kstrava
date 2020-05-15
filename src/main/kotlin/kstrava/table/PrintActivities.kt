@@ -1,5 +1,6 @@
 package com.grysz.kstrava
 
+import com.grysz.kstrava.table.Align.RIGHT
 import com.grysz.kstrava.table.CellRenderer
 import com.grysz.kstrava.table.Header
 import com.grysz.kstrava.table.MinWidthColumn
@@ -13,7 +14,7 @@ private val idColumn: MinWidthColumn = MinWidthColumn(Header("id"))
 private val startDateColumn: MinWidthColumn = MinWidthColumn(Header("start date"))
 private val typeColumn: MinWidthColumn = MinWidthColumn(Header("type"))
 private val nameColumn: MinWidthColumn = MinWidthColumn(Header("name"))
-private val distanceColumn: MinWidthColumn = MinWidthColumn(Header("km"))
+private val distanceColumn: MinWidthColumn = MinWidthColumn(Header("km"), align = RIGHT)
 private val gearIdColumn: MinWidthColumn = MinWidthColumn(Header("gear id"))
 private val privateColumn: MinWidthColumn = MinWidthColumn(Header("p"))
 private val columns = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, privateColumn)

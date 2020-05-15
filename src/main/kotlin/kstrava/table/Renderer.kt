@@ -9,7 +9,9 @@ fun <A> Table<A>.render(values: List<A>, renderRow: (String) -> Unit) {
 
 private const val COLUMN_SEPARATOR = " "
 
-private fun <A> Table<A>.columnStringFormat() = columns.joinToString(COLUMN_SEPARATOR) { "%-${it.width}s" }
+private fun <A> Table<A>.columnStringFormat() = columns.joinToString(COLUMN_SEPARATOR) { "%${alignFlag(it.align)}${it.width}s" }
+
+private fun alignFlag(align: Align) = if (align == Align.LEFT) "-" else ""
 
 private fun <A> Table<A>.headerRow(formatSpec: String) = formatSpec.format(*columns.map { it.header.text }.toTypedArray())
 

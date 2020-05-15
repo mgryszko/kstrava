@@ -1,11 +1,17 @@
 package com.grysz.kstrava.table
 
+import com.grysz.kstrava.table.Align.LEFT
+
 data class Header(val text: String) {
     fun width(): Int = text.length
 }
 
-data class MinWidthColumn(val header: Header, val width: Int) {
-    constructor(header: Header) : this(header, width = header.width())
+enum class Align {
+    LEFT, RIGHT
+}
+
+data class MinWidthColumn(val header: Header, val width: Int, val align: Align = LEFT) {
+    constructor(header: Header, align: Align = LEFT) : this(header = header, width = header.width(), align = align)
 
     init {
         require(width > 0) { "Width must be positive" }
