@@ -1,4 +1,4 @@
-package kstrava
+package kstrava.table
 
 import ch.tutteli.atrium.api.fluent.en_GB.isNumericallyEqualTo
 import ch.tutteli.atrium.api.verbs.expect
