@@ -8,7 +8,7 @@ import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDateTime
+import kstrava.activity
 import kotlin.test.Test
 
 class ListActivitiesWorkflowTest {
@@ -17,7 +17,6 @@ class ListActivitiesWorkflowTest {
 
     val accessTokenFileName = "::file::"
     val accessToken = AccessToken("::token::")
-    val activity = Activity(0, Distance(1), "", "", false, LocalDateTime.MIN, "")
     val activities = listOf(activity)
 
     @Test
