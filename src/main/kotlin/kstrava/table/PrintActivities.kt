@@ -20,7 +20,7 @@ private val privateColumn: MinWidthColumn = MinWidthColumn(Header("p"))
 private val columns = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, privateColumn)
 
 private val idRenderer: CellRenderer<Activity> = { it.id.toString() }
-private val startDateRenderer: CellRenderer<Activity> = Activity::start_date
+private val startDateRenderer: CellRenderer<Activity> = { it.startDate.toString() }
 private val typeRenderer: CellRenderer<Activity> = Activity::type
 private val nameRenderer: CellRenderer<Activity> = Activity::name
 private val distanceRenderer: CellRenderer<Activity> = { it.distance.toKm().toString() }

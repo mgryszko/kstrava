@@ -17,6 +17,7 @@ import kstrava.strava.getActivities
 import kstrava.strava.getAthleteActivities
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import java.time.LocalDateTime
 import kotlin.test.Test
 
 private val accessToken = AccessToken("::token::")
@@ -47,9 +48,7 @@ class GetAthleteActivitiesTest {
     "gear_id": "::gearId1::",
     "name": "::name1::",
     "private": true,
-    "start_date": "2020-01-02T03:04:05",
     "start_date_local": "2020-01-02T03:04:05Z",
-    "timezone": "(GMT+01:00) Europe/Madrid",
     "type": "::type::"
 }]"""
                     )
@@ -64,9 +63,7 @@ class GetAthleteActivitiesTest {
                     gear_id = "::gearId1::",
                     name = "::name1::",
                     private = true,
-                    start_date = "2020-01-02T03:04:05",
                     start_date_local = "2020-01-02T03:04:05Z",
-                    timezone = "(GMT+01:00) Europe/Madrid",
                     type = "::type::"
                 )
             )
@@ -86,23 +83,21 @@ class GetActivitiesTest {
                 gear_id = "::gearId::",
                 name = "::name::",
                 private = true,
-                start_date = "2020-01-02T03:04:05",
                 start_date_local = "2020-01-02T03:04:05Z",
-                timezone = "(GMT+01:00) Europe/Madrid",
                 type = "::type::"
             )
         )
-        val activities = listOf(Activity(
-            id = 1,
-            distance = Distance(123),
-            gear_id = "::gearId::",
-            name = "::name::",
-            private = true,
-            start_date = "2020-01-02T03:04:05",
-            start_date_local = "2020-01-02T03:04:05Z",
-            timezone = "(GMT+01:00) Europe/Madrid",
-            type = "::type::"
-        ))
+        val activities = listOf(
+            Activity(
+                id = 1,
+                distance = Distance(123),
+                gear_id = "::gearId::",
+                name = "::name::",
+                private = true,
+                startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
+                type = "::type::"
+            )
+        )
 
         every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 

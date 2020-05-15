@@ -2,6 +2,7 @@ package com.grysz.kstrava
 
 import arrow.Kind
 import arrow.typeclasses.Monad
+import java.time.LocalDateTime
 
 data class AccessToken(val token: String) {
     init {
@@ -15,9 +16,7 @@ data class Activity(
     val gear_id: String?,
     val name: String,
     val private: Boolean,
-    val start_date: String,
-    val start_date_local: String,
-    val timezone: String,
+    val startDate: LocalDateTime,
     val type: String
 )
 

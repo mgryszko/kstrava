@@ -17,6 +17,10 @@ import com.grysz.kstrava.StravaApiError
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
+import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
+import java.time.format.DateTimeFormatterBuilder
 
 data class ApiActivity(
     val id: Long,
@@ -24,9 +28,7 @@ data class ApiActivity(
     val gear_id: String?,
     val name: String,
     val private: Boolean,
-    val start_date: String,
     val start_date_local: String,
-    val timezone: String,
     val type: String
 )
 
@@ -61,10 +63,16 @@ private fun toActivity(activity: ApiActivity): Activity {
         gear_id = activity.gear_id,
         name = activity.name,
         private = activity.private,
-        start_date = activity.start_date,
-        start_date_local = activity.start_date_local,
-        timezone = activity.timezone,
+        startDate = LocalDateTime.parse(activity.start_date_local, localDateTimeFormatter),
         type = activity.type
     )
 }
+
+private val localDateTimeFormatter = DateTimeFormatterBuilder()
+    .parseCaseInsensitive()
+    .append(ISO_LOCAL_DATE)
+    .appendLiteral('T')
+    .append(ISO_LOCAL_TIME)
+    .appendLiteral('Z')
+    .toFormatter()
 
