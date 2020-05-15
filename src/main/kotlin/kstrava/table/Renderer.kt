@@ -1,6 +1,6 @@
 package com.grysz.kstrava.table
 
-fun <A> Table<A>.render(values: List<A>, renderRow: (String) -> Unit = ::println) {
+fun <A> Table<A>.render(values: List<A>, renderRow: (String) -> Unit) {
     val format = columnStringFormat()
     renderRow(headerRow(format))
     renderRow(separatorRow())

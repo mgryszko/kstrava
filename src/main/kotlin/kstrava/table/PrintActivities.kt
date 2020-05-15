@@ -31,5 +31,5 @@ private val table = Table(columns, renderers)
 fun Distance.toKm(): BigDecimal = meters.toBigDecimal().divide(1000.toBigDecimal()).setScale(2, RoundingMode.HALF_UP)
 
 fun printActivitiesTable(activities: List<Activity>) {
-    table.fitContent(activities).render(activities)
+    table.fitContent(activities).render(activities, ::println)
 }
