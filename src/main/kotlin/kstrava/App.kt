@@ -15,8 +15,8 @@ import arrow.typeclasses.Monad
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import kstrava.api.getActivities
-import kstrava.api.getAthleteActivities
+import kstrava.strava.getActivities
+import kstrava.strava.getAthleteActivities
 import java.io.File
 
 typealias IOE<A, B> = IO<Either<A, B>>

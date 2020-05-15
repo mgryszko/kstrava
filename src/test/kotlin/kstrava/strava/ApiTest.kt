@@ -12,9 +12,9 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import io.mockk.every
 import io.mockk.mockk
-import kstrava.api.ApiActivity
-import kstrava.api.getActivities
-import kstrava.api.getAthleteActivities
+import kstrava.strava.ApiActivity
+import kstrava.strava.getActivities
+import kstrava.strava.getAthleteActivities
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test

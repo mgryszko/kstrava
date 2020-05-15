@@ -1,4 +1,4 @@
-package kstrava.api
+package kstrava.strava
 
 import arrow.Kind
 import arrow.core.left
