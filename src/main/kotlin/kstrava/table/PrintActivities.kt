@@ -1,7 +1,7 @@
 package com.grysz.kstrava
 
+import arrow.typeclasses.Show
 import com.grysz.kstrava.table.Align.RIGHT
-import com.grysz.kstrava.table.CellRenderer
 import com.grysz.kstrava.table.Header
 import com.grysz.kstrava.table.MinWidthColumn
 import com.grysz.kstrava.table.Table
@@ -22,7 +22,7 @@ private val gearIdColumn: MinWidthColumn = MinWidthColumn(Header("gear id"))
 private val privateColumn: MinWidthColumn = MinWidthColumn(Header("p"))
 private val columns = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, privateColumn)
 
-private val idRenderer: CellRenderer<Activity> = { it.id.toString() }
+private val idRenderer: Show<Activity> = Show { id.toString() }
 private val startDateFormatter = DateTimeFormatterBuilder()
     .parseCaseInsensitive()
     .append(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -31,12 +31,12 @@ private val startDateFormatter = DateTimeFormatterBuilder()
     .appendLiteral(':')
     .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
     .toFormatter()
-val startDateRenderer: CellRenderer<Activity> = { it.startDate.format(startDateFormatter).toString() }
-private val typeRenderer: CellRenderer<Activity> = Activity::type
-private val nameRenderer: CellRenderer<Activity> = Activity::name
-val distanceRenderer: CellRenderer<Activity> = { it.distance.toKm().toString() }
-private val gearIdRenderer: CellRenderer<Activity> = { it.gear_id ?: "" }
-private val privateRenderer: CellRenderer<Activity> = { if (it.private) "+" else "" }
+val startDateRenderer: Show<Activity> = Show { startDate.format(startDateFormatter).toString() }
+private val typeRenderer: Show<Activity> = Show { type }
+private val nameRenderer: Show<Activity> = Show { name }
+val distanceRenderer: Show<Activity> = Show { distance.toKm().toString() }
+private val gearIdRenderer: Show<Activity> = Show { gear_id ?: "" }
+private val privateRenderer: Show<Activity> = Show { if (private) "+" else "" }
 private val renderers = listOf(idRenderer, startDateRenderer, typeRenderer, nameRenderer, distanceRenderer, gearIdRenderer, privateRenderer)
 private val table = Table(columns, renderers)
 

@@ -1,5 +1,6 @@
 package com.grysz.kstrava.table
 
+import arrow.typeclasses.Show
 import com.grysz.kstrava.table.Align.LEFT
 
 data class Header(val text: String) {
@@ -18,9 +19,7 @@ data class MinWidthColumn(val header: Header, val width: Int, val align: Align =
     }
 }
 
-typealias CellRenderer<A> = (A) -> String
-
-data class Table<in A>(val columns: List<MinWidthColumn>, val renderers: List<CellRenderer<A>>) {
+data class Table<in A>(val columns: List<MinWidthColumn>, val renderers: List<Show<A>>) {
     init {
         require(columns.isNotEmpty()) { "Table must have at least one column" }
         require(columns.size == renderers.size) { "Each column must have a corresponding renderer" }
@@ -29,8 +28,8 @@ data class Table<in A>(val columns: List<MinWidthColumn>, val renderers: List<Ce
 
 fun <A> Table<A>.fitContent(values: List<A>): Table<A> {
     val newColumns = values.fold(columns) { newColumns, value ->
-        newColumns.zip(renderers).fold(emptyList()) { acc: List<MinWidthColumn>, (column: MinWidthColumn, renderer: CellRenderer<A>) ->
-            acc + column.fitTo(renderer(value).length)
+        newColumns.zip(renderers).fold(emptyList()) { acc: List<MinWidthColumn>, (column: MinWidthColumn, renderer: Show<A>) ->
+            acc + column.fitTo(with(renderer) { value.show().length })
         }
     }
     return copy(columns = newColumns, renderers = renderers)

@@ -17,4 +17,7 @@ private fun <A> Table<A>.headerRow(formatSpec: String) = formatSpec.format(*colu
 
 private fun <A> Table<A>.separatorRow() = columns.joinToString(COLUMN_SEPARATOR, transform = { "-".repeat(it.width) })
 
-private fun <A> Table<A>.valueRow(formatSpec: String, value: A) = formatSpec.format(*renderers.map { it(value) }.toTypedArray())
+private fun <A> Table<A>.valueRow(formatSpec: String, value: A) =
+    formatSpec.format(*cells(value).toTypedArray())
+
+private fun <A> Table<A>.cells(value: A) = renderers.map { with(it) { value.show() } }

@@ -12,15 +12,19 @@ import java.time.LocalDateTime
 class PrintActivitiesTest {
     @Test
     fun `distance renderer`() {
-        expect(distanceRenderer(activity.copy(distance = Distance(meters = 124)))).toBe("0.12")
-        expect(distanceRenderer(activity.copy(distance = Distance(meters = 125)))).toBe("0.13")
-        expect(distanceRenderer(activity.copy(distance = Distance(meters = 8849)))).toBe("8.85")
-        expect(distanceRenderer(activity.copy(distance = Distance(meters = 88849)))).toBe("88.85")
-        expect(distanceRenderer(activity.copy(distance = Distance(meters = 150009)))).toBe("150.01")
+        with(distanceRenderer) {
+            expect(activity.copy(distance = Distance(meters = 124)).show()).toBe("0.12")
+            expect(activity.copy(distance = Distance(meters = 125)).show()).toBe("0.13")
+            expect(activity.copy(distance = Distance(meters = 8849)).show()).toBe("8.85")
+            expect(activity.copy(distance = Distance(meters = 88849)).show()).toBe("88.85")
+            expect(activity.copy(distance = Distance(meters = 150009)).show()).toBe("150.01")
+        }
     }
 
     @Test
     fun `start date renderer`() {
-        expect(startDateRenderer(activity.copy(startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5)))).toBe("2020-01-02 03:04")
+        with(startDateRenderer) {
+            expect(activity.copy(startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5)).show()).toBe("2020-01-02 03:04")
+        }
     }
 }

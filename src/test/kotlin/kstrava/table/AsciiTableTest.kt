@@ -1,5 +1,6 @@
 package com.grysz.kstrava.table
 
+import arrow.typeclasses.Show
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import org.junit.jupiter.api.Test
@@ -9,7 +10,7 @@ internal class AsciiTableTest {
     fun `adjust table to fit content`() {
         val table = Table(
             columns = listOf(MinWidthColumn(header = Header("bb")), MinWidthColumn(header = Header("bbbbbbbb"))),
-            renderers = listOf<CellRenderer<String>>({ it }, { it + it })
+            renderers = listOf<Show<String>>(Show { this }, Show { this + this })
         )
         val values = listOf("", "a", "aa", "aaa")
 

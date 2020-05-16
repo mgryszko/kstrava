@@ -1,11 +1,12 @@
 package com.grysz.kstrava.table
 
+import arrow.typeclasses.Show
 import ch.tutteli.atrium.api.fluent.en_GB.containsExactly
 import ch.tutteli.atrium.api.verbs.expect
 import com.grysz.kstrava.table.Align.RIGHT
 import org.junit.jupiter.api.Test
 
-internal class RendererTest {
+class RendererTest {
     @Test
     fun render() {
         val table = Table(
@@ -13,7 +14,7 @@ internal class RendererTest {
                 MinWidthColumn(header = Header("first"), width = 5),
                 MinWidthColumn(header = Header("second"), width = 6, align = RIGHT)
             ),
-            renderers = listOf<CellRenderer<String>>({ it }, { it + it })
+            renderers = listOf<Show<String>>(Show { this }, Show { this + this })
         )
         val values = listOf("", "a", "aa", "aaa")
 
