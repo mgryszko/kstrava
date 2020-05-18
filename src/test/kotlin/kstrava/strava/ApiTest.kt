@@ -4,6 +4,7 @@ import arrow.Kind
 import arrow.core.ForId
 import arrow.core.Id
 import arrow.core.extensions.id.monad.monad
+import ch.tutteli.atrium.api.fluent.en_GB.isA
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -68,6 +69,16 @@ class GetAthleteActivitiesTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun unauthorized() {
+        wm.stubFor(
+            get(urlMatching("/api/v3/athlete/activities"))
+                .willReturn(status(401))
+        )
+
+        expect(getAthleteActivities(accessToken, "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
     }
 }
 
