@@ -13,7 +13,7 @@ data class AccessToken(val token: String) {
 data class Activity(
     val id: Long,
     val distance: Distance,
-    val gear_id: String?,
+    val gearId: String?,
     val name: String,
     val private: Boolean,
     val startDate: LocalDateTime,

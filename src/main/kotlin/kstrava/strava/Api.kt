@@ -60,7 +60,7 @@ private fun toActivity(activity: ApiActivity): Activity {
     return Activity(
         id = activity.id,
         distance = Distance(toDistance(activity.distance)),
-        gear_id = activity.gear_id,
+        gearId = activity.gear_id,
         name = activity.name,
         private = activity.private,
         startDate = LocalDateTime.parse(activity.start_date_local, localDateTimeFormatter),
