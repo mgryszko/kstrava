@@ -13,7 +13,7 @@ data class AccessToken(val token: String) {
 data class Activity(
     val id: Long,
     val distance: Distance,
-    val gearId: String?,
+    val gear: Gear?,
     val name: String,
     val private: Boolean,
     val startDate: LocalDateTime,
@@ -25,6 +25,8 @@ data class Distance(val meters: Int) {
         require(meters > 0) { "distance in meters must be greater than 0" }
     }
 }
+
+data class Gear(val id: String, val name: String)
 
 sealed class ListActivitiesError
 

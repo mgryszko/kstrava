@@ -11,6 +11,7 @@ import com.github.kittinunf.fuel.jackson.responseObject
 import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
+import com.grysz.kstrava.Gear
 import com.grysz.kstrava.IOE
 import com.grysz.kstrava.ListActivitiesError
 import com.grysz.kstrava.StravaApiError
@@ -60,7 +61,7 @@ private fun toActivity(activity: ApiActivity): Activity {
     return Activity(
         id = activity.id,
         distance = Distance(toDistance(activity.distance)),
-        gearId = activity.gear_id,
+        gear = activity.gear_id?.let { Gear(activity.gear_id, "") },
         name = activity.name,
         private = activity.private,
         startDate = LocalDateTime.parse(activity.start_date_local, localDateTimeFormatter),

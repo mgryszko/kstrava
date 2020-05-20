@@ -19,8 +19,9 @@ private val typeColumn: MinWidthColumn = MinWidthColumn(Header("type"))
 private val nameColumn: MinWidthColumn = MinWidthColumn(Header("name"))
 private val distanceColumn: MinWidthColumn = MinWidthColumn(Header("km"), align = RIGHT)
 private val gearIdColumn: MinWidthColumn = MinWidthColumn(Header("gear id"))
+private val gearNameColumn: MinWidthColumn = MinWidthColumn(Header("gear name"))
 private val privateColumn: MinWidthColumn = MinWidthColumn(Header("p"))
-private val columns = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, privateColumn)
+private val columns = listOf(idColumn, startDateColumn, typeColumn, nameColumn, distanceColumn, gearIdColumn, gearNameColumn, privateColumn)
 
 private val idRenderer: Show<Activity> = Show { id.toString() }
 private val startDateFormatter = DateTimeFormatterBuilder()
@@ -35,9 +36,10 @@ val startDateRenderer: Show<Activity> = Show { startDate.format(startDateFormatt
 private val typeRenderer: Show<Activity> = Show { type }
 private val nameRenderer: Show<Activity> = Show { name }
 val distanceRenderer: Show<Activity> = Show { distance.toKm().toString() }
-private val gearIdRenderer: Show<Activity> = Show { gearId ?: "" }
+val gearIdRenderer: Show<Activity> = Show { gear?.id ?: "none" }
+val gearNameRenderer: Show<Activity> = Show { gear?.name ?: "" }
 private val privateRenderer: Show<Activity> = Show { if (private) "+" else "" }
-private val renderers = listOf(idRenderer, startDateRenderer, typeRenderer, nameRenderer, distanceRenderer, gearIdRenderer, privateRenderer)
+private val renderers = listOf(idRenderer, startDateRenderer, typeRenderer, nameRenderer, distanceRenderer, gearIdRenderer, gearNameRenderer, privateRenderer)
 private val table = Table(columns, renderers)
 
 private fun Distance.toKm(): BigDecimal = meters.toBigDecimal().divide(1000.toBigDecimal()).setScale(2, RoundingMode.HALF_UP)

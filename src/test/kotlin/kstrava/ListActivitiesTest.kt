@@ -8,7 +8,7 @@ import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import io.mockk.every
 import io.mockk.mockk
-import kstrava.activity
+import kstrava.anyActivity
 import kotlin.test.Test
 
 class ListActivitiesTest {
@@ -17,7 +17,7 @@ class ListActivitiesTest {
 
     val accessTokenFileName = "::file::"
     val accessToken = AccessToken("::token::")
-    val activities = listOf(activity)
+    val activities = listOf(anyActivity)
 
     @Test
     fun execute() {

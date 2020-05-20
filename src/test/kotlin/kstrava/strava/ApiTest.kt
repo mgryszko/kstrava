@@ -102,7 +102,7 @@ class GetActivitiesTest {
             Activity(
                 id = 1,
                 distance = Distance(123),
-                gearId = "::gearId::",
+                gear = Gear("::gearId::", ""),
                 name = "::name::",
                 private = true,
                 startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),

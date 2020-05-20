@@ -4,10 +4,10 @@ import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
 import java.time.LocalDateTime
 
-val activity = Activity(
+val anyActivity = Activity(
     id = 0,
     distance = Distance(meters = 1),
-    gearId = null,
+    gear = null,
     name = "",
     private = false,
     startDate = LocalDateTime.MIN,
