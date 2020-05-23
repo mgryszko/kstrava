@@ -24,24 +24,27 @@ import com.grysz.kstrava.runE
 import com.grysz.kstrava.value
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import java.time.LocalDateTime
 import kotlin.test.Test
 
 private val accessToken = AccessToken("::token::")
 
+@TestInstance(Lifecycle.PER_CLASS)
 class ApiTest {
     val wm: WireMockServer = WireMockServer(options().dynamicPort().notifier(ConsoleNotifier(false)))
 
-    @BeforeEach
+    @BeforeAll
     fun setUp() {
         wm.start()
     }
 
-    @AfterEach
+    @AfterAll
     fun tearDown() {
         wm.stop()
     }
