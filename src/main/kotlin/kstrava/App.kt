@@ -16,6 +16,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import kstrava.strava.getActivities
+import kstrava.strava.getAthlete
 import kstrava.strava.getAthleteActivities
 import kstrava.token.readAccessToken
 
@@ -28,7 +29,7 @@ fun app(accessTokenFileName: String): IO<Unit> {
     val M: Monad<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.monad(IO.monad())
     val readAccessToken = lift(::readAccessToken)
     val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
-        { accessToken: AccessToken -> getActivities(M, lift(::getAthleteActivities), accessToken) }
+        { accessToken: AccessToken -> getActivities(M, lift(::getAthleteActivities), lift(::getAthlete), accessToken) }
 
     val maybeActivities = listActitivies(
         M,

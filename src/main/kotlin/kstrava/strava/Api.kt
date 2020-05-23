@@ -33,6 +33,13 @@ data class ApiActivity(
     val type: String
 )
 
+data class ApiAthlete(
+    val bikes: List<ApiGear>,
+    val shoes: List<ApiGear>
+)
+
+data class ApiGear(val id: String, val name: String)
+
 fun getAthleteActivities(
     accessToken: AccessToken,
     baseUrl: String = "https://www.strava.com"
@@ -45,29 +52,45 @@ fun getAthleteActivities(
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
 
+fun getAthlete(
+    accessToken: AccessToken,
+    baseUrl: String = "https://www.strava.com"
+): IOE<ListActivitiesError, ApiAthlete> = IO {
+    val path = "$baseUrl/api/v3/athlete"
+
+    val (_, _, result) = Fuel.get(path)
+        .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
+        .responseObject<ApiAthlete>()
+    result.fold({ it.right() }, { StravaApiError(it.exception).left() })
+}
+
 fun <F> getActivities(
     M: Monad<F>,
     getAthleteActivities: (AccessToken) -> Kind<F, List<ApiActivity>>,
+    getAthlete: (AccessToken) -> Kind<F, ApiAthlete>,
     accessToken: AccessToken
 ): Kind<F, List<Activity>> =
     M.fx.monad {
         val apiActivities = !getAthleteActivities(accessToken)
-        apiActivities.map(::toActivity)
+        val apiAthlete = !getAthlete(accessToken)
+        apiActivities.map { toActivity(it, apiAthlete) }
     }
 
-private fun toActivity(activity: ApiActivity): Activity {
+private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
     fun toDistance(meters: BigDecimal) = meters.round(MathContext(0, RoundingMode.FLOOR)).toInt()
 
     return Activity(
         id = activity.id,
         distance = Distance(toDistance(activity.distance)),
-        gear = activity.gear_id?.let { Gear(activity.gear_id, "") },
+        gear = activity.gear_id?.let { apiAthlete.findGear(activity.gear_id)?.let { Gear(it.id, it.name) } },
         name = activity.name,
         private = activity.private,
         startDate = LocalDateTime.parse(activity.start_date_local, localDateTimeFormatter),
         type = activity.type
     )
 }
+
+private fun ApiAthlete.findGear(gearId: String) = (bikes + shoes).find { it.id == gearId }
 
 private val localDateTimeFormatter = DateTimeFormatterBuilder()
     .parseCaseInsensitive()
