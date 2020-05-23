@@ -5,7 +5,7 @@ import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import org.junit.jupiter.api.Test
 
-internal class AsciiTableTest {
+class AsciiTableTest {
     @Test
     fun `adjust table to fit content`() {
         val table = Table(
