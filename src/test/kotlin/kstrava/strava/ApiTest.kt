@@ -24,12 +24,6 @@ import com.grysz.kstrava.runE
 import com.grysz.kstrava.value
 import io.mockk.every
 import io.mockk.mockk
-import kstrava.strava.ApiActivity
-import kstrava.strava.ApiAthlete
-import kstrava.strava.ApiGear
-import kstrava.strava.getActivities
-import kstrava.strava.getAthlete
-import kstrava.strava.getAthleteActivities
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

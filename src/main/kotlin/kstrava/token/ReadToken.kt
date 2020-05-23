@@ -1,4 +1,4 @@
-package kstrava.token
+package com.grysz.kstrava.token
 
 import arrow.core.Either
 import arrow.fx.IO

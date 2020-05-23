@@ -1,14 +1,10 @@
-package kstrava.table
+package com.grysz.kstrava.table
 
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
-import com.grysz.kstrava.distanceRenderer
-import com.grysz.kstrava.gearIdRenderer
-import com.grysz.kstrava.gearNameRenderer
-import com.grysz.kstrava.startDateRenderer
-import kstrava.anyActivity
+import com.grysz.kstrava.anyActivity
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 

@@ -1,7 +1,5 @@
-package kstrava
+package com.grysz.kstrava
 
-import com.grysz.kstrava.Activity
-import com.grysz.kstrava.Distance
 import java.time.LocalDateTime
 
 val anyActivity = Activity(

@@ -15,10 +15,11 @@ import arrow.typeclasses.Monad
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import kstrava.strava.getActivities
-import kstrava.strava.getAthlete
-import kstrava.strava.getAthleteActivities
-import kstrava.token.readAccessToken
+import com.grysz.kstrava.strava.getActivities
+import com.grysz.kstrava.strava.getAthlete
+import com.grysz.kstrava.strava.getAthleteActivities
+import com.grysz.kstrava.table.printActivitiesTable
+import com.grysz.kstrava.token.readAccessToken
 
 typealias IOE<A, B> = IO<Either<A, B>>
 

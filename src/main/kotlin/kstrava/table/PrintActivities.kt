@@ -1,12 +1,9 @@
-package com.grysz.kstrava
+package com.grysz.kstrava.table
 
 import arrow.typeclasses.Show
+import com.grysz.kstrava.Activity
+import com.grysz.kstrava.Distance
 import com.grysz.kstrava.table.Align.RIGHT
-import com.grysz.kstrava.table.Header
-import com.grysz.kstrava.table.MinWidthColumn
-import com.grysz.kstrava.table.Table
-import com.grysz.kstrava.table.fitContent
-import com.grysz.kstrava.table.render
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.format.DateTimeFormatter
@@ -39,7 +36,16 @@ val distanceRenderer: Show<Activity> = Show { distance.toKm().toString() }
 val gearIdRenderer: Show<Activity> = Show { gear?.id ?: "none" }
 val gearNameRenderer: Show<Activity> = Show { gear?.name ?: "" }
 private val privateRenderer: Show<Activity> = Show { if (private) "+" else "" }
-private val renderers = listOf(idRenderer, startDateRenderer, typeRenderer, nameRenderer, distanceRenderer, gearIdRenderer, gearNameRenderer, privateRenderer)
+private val renderers = listOf(
+    idRenderer,
+    startDateRenderer,
+    typeRenderer,
+    nameRenderer,
+    distanceRenderer,
+    gearIdRenderer,
+    gearNameRenderer,
+    privateRenderer
+)
 private val table = Table(columns, renderers)
 
 private fun Distance.toKm(): BigDecimal = meters.toBigDecimal().divide(1000.toBigDecimal()).setScale(2, RoundingMode.HALF_UP)
