@@ -30,6 +30,7 @@ object Versions {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
     implementation("com.github.kittinunf.fuel:fuel:${Versions.fuel}")
     implementation("com.github.kittinunf.fuel:fuel-jackson:${Versions.fuel}")
     implementation("com.fasterxml.jackson.core:jackson-core:${Versions.jackson}")

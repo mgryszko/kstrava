@@ -1,9 +1,12 @@
 package com.grysz.kstrava.strava
 
 import arrow.Kind
+import arrow.core.Either
+import arrow.core.extensions.fx
 import arrow.core.left
 import arrow.core.right
 import arrow.fx.IO
+import arrow.fx.extensions.fx
 import arrow.typeclasses.Monad
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
@@ -75,6 +78,27 @@ fun <F> getActivities(
         val apiAthlete = !getAthlete(accessToken)
         apiActivities.map { toActivity(it, apiAthlete) }
     }
+
+fun parGetActivities(
+    getAthleteActivities: (AccessToken) -> IOE<ListActivitiesError, List<ApiActivity>>,
+    getAthlete: (AccessToken) -> IOE<ListActivitiesError, ApiAthlete>,
+    accessToken: AccessToken
+): IOE<ListActivitiesError, List<Activity>> = IO.fx {
+    val apiActivitiesF = !getAthleteActivities(accessToken).fork(dispatchers().default())
+    val apiAthleteF = !getAthlete(accessToken).fork(dispatchers().default())
+    val apiActivities = !apiActivitiesF.join()
+    val apiAthlete = !apiAthleteF.join()
+    toActivities(apiActivities, apiAthlete)
+}
+
+private fun toActivities(
+    apiActivities: Either<ListActivitiesError, List<ApiActivity>>,
+    apiAthlete: Either<ListActivitiesError, ApiAthlete>
+): Either<ListActivitiesError, List<Activity>> = Either.fx {
+    val apiAct = !apiActivities
+    val apiAth = !apiAthlete
+    apiAct.map { toActivity(it, apiAth) }
+}
 
 private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
     fun toDistance(meters: BigDecimal) = meters.round(MathContext(0, RoundingMode.FLOOR)).toInt()

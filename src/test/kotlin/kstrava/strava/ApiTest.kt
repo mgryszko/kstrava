@@ -4,6 +4,8 @@ import arrow.Kind
 import arrow.core.ForId
 import arrow.core.Id
 import arrow.core.extensions.id.monad.monad
+import arrow.core.right
+import arrow.fx.IO
 import ch.tutteli.atrium.api.fluent.en_GB.all
 import ch.tutteli.atrium.api.fluent.en_GB.feature
 import ch.tutteli.atrium.api.fluent.en_GB.isA
@@ -17,6 +19,8 @@ import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
+import com.grysz.kstrava.IOE
+import com.grysz.kstrava.ListActivitiesError
 import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right
@@ -210,5 +214,58 @@ class GetActivitiesTest {
         expect(getActivities(Id.monad(), getAthleteActivities, getAthlete, accessToken)).value.all {
             feature { f(it::gear) }.toBe(null)
         }
+    }
+}
+
+class ParGetActivitiesTest {
+    val apiAthlete = ApiAthlete(
+        bikes = listOf(
+            ApiGear(id = "::bikeId1::", name = "::bikeName1::"),
+            ApiGear(id = "::bikeId2::", name = "::bikeName2::")
+        ),
+        shoes = listOf(
+            ApiGear(id = "::shoeId::", name = "::shoeName::")
+        )
+    )
+    val apiActivities = listOf(
+        ApiActivity(
+            id = 1,
+            distance = 123.99.toBigDecimal(),
+            gear_id = "::bikeId2::",
+            name = "::name::",
+            private = true,
+            start_date_local = "2020-01-02T03:04:05Z",
+            type = "::type::"
+        )
+    )
+    val activities = listOf(
+        Activity(
+            id = 1,
+            distance = Distance(123),
+            gear = Gear("::bikeId2::", "::bikeName2::"),
+            name = "::name::",
+            private = true,
+            startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
+            type = "::type::"
+        )
+    )
+
+    val getAthlete: (AccessToken) -> IOE<ListActivitiesError, ApiAthlete> = {
+        IO {
+            println("getAthlete ${Thread.currentThread().name}")
+            apiAthlete.right()
+        }
+    }
+    val getAthleteActivities: (AccessToken) -> IOE<ListActivitiesError, List<ApiActivity>> = {
+        IO {
+            println("getAthleteActivities ${Thread.currentThread().name}")
+            apiActivities.right()
+        }
+    }
+
+    @Test
+    fun `par get activities`() {
+        println("test ${Thread.currentThread().name}")
+        expect(parGetActivities(getAthleteActivities, getAthlete, accessToken)).runE.right.toBe(activities)
     }
 }
