@@ -46,7 +46,7 @@ fun getAthleteActivities(
     baseUrl: String = "https://www.strava.com"
 ): IOE<ListActivitiesError, List<ApiActivity>> = IO {
     val path = "$baseUrl/api/v3/athlete/activities"
-
+    println("getAthleteActivities ${Thread.currentThread().name}")
     val (_, _, result) = Fuel.get(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .responseObject<List<ApiActivity>>()
@@ -58,7 +58,7 @@ fun getAthlete(
     baseUrl: String = "https://www.strava.com"
 ): IOE<ListActivitiesError, ApiAthlete> = IO {
     val path = "$baseUrl/api/v3/athlete"
-
+    println("getAthlete ${Thread.currentThread().name}")
     val (_, _, result) = Fuel.get(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .responseObject<ApiAthlete>()
@@ -82,12 +82,10 @@ fun <F> parGetActivities(
     getAthleteActivities: (AccessToken) -> Kind<F, List<ApiActivity>>,
     getAthlete: (AccessToken) -> Kind<F, ApiAthlete>,
     accessToken: AccessToken
-): Kind<F, List<Activity>> = C.fx.concurrent {
-    val apiActivitiesF = !getAthleteActivities(accessToken).fork(dispatchers().default())
-    val apiAthleteF = !getAthlete(accessToken).fork(dispatchers().default())
-    val apiActivities = !apiActivitiesF.join()
-    val apiAthlete = !apiAthleteF.join()
-    apiActivities.map { toActivity(it, apiAthlete) }
+): Kind<F, List<Activity>> = C.run {
+    parMapN(dispatchers().io(), getAthleteActivities(accessToken), getAthlete(accessToken)) { (apiActivities, apiAthlete) ->
+        apiActivities.map { toActivity(it, apiAthlete) }
+    }
 }
 
 private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
