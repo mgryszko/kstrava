@@ -11,7 +11,7 @@ import ch.tutteli.atrium.api.fluent.en_GB.isA
 import ch.tutteli.atrium.creating.Expect
 import ch.tutteli.atrium.creating.FeatureExpect
 
-val <A> Expect<IO<A>>.run: FeatureExpect<IO<A>, Either<Throwable, A>>
+val <A> Expect<IO<A>>.runIO: FeatureExpect<IO<A>, Either<Throwable, A>>
     get() = feature("unsafeRunSync") { attempt().unsafeRunSync() }
 
 val <A, B> Expect<IOE<A, B>>.runE: FeatureExpect<IOE<A, B>, Either<A, B>>

@@ -4,8 +4,9 @@ import arrow.Kind
 import arrow.core.ForId
 import arrow.core.Id
 import arrow.core.extensions.id.monad.monad
-import arrow.core.right
 import arrow.fx.IO
+import arrow.fx.extensions.io.concurrent.concurrent
+import arrow.fx.fix
 import ch.tutteli.atrium.api.fluent.en_GB.all
 import ch.tutteli.atrium.api.fluent.en_GB.feature
 import ch.tutteli.atrium.api.fluent.en_GB.isA
@@ -19,12 +20,11 @@ import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
-import com.grysz.kstrava.IOE
-import com.grysz.kstrava.ListActivitiesError
 import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right
 import com.grysz.kstrava.runE
+import com.grysz.kstrava.runIO
 import com.grysz.kstrava.value
 import io.mockk.every
 import io.mockk.mockk
@@ -250,22 +250,22 @@ class ParGetActivitiesTest {
         )
     )
 
-    val getAthlete: (AccessToken) -> IOE<ListActivitiesError, ApiAthlete> = {
+    val getAthlete: (AccessToken) -> IO<ApiAthlete> = {
         IO {
             println("getAthlete ${Thread.currentThread().name}")
-            apiAthlete.right()
+            apiAthlete
         }
     }
-    val getAthleteActivities: (AccessToken) -> IOE<ListActivitiesError, List<ApiActivity>> = {
+    val getAthleteActivities: (AccessToken) -> IO<List<ApiActivity>> = {
         IO {
             println("getAthleteActivities ${Thread.currentThread().name}")
-            apiActivities.right()
+            apiActivities
         }
     }
 
     @Test
     fun `par get activities`() {
         println("test ${Thread.currentThread().name}")
-        expect(parGetActivities(getAthleteActivities, getAthlete, accessToken)).runE.right.toBe(activities)
+        expect(parGetActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.toBe(activities)
     }
 }
