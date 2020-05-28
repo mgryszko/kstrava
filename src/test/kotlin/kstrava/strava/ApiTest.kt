@@ -250,22 +250,12 @@ class ParGetActivitiesTest {
         )
     )
 
-    val getAthlete: (AccessToken) -> IO<ApiAthlete> = {
-        IO {
-            println("getAthlete ${Thread.currentThread().name}")
-            apiAthlete
-        }
-    }
-    val getAthleteActivities: (AccessToken) -> IO<List<ApiActivity>> = {
-        IO {
-            println("getAthleteActivities ${Thread.currentThread().name}")
-            apiActivities
-        }
-    }
+    val getAthlete: (AccessToken) -> IO<ApiAthlete> = { IO { apiAthlete } }
+    val getAthleteActivities: (AccessToken) -> IO<List<ApiActivity>> = { IO { apiActivities } }
 
     @Test
     fun `par get activities`() {
         println("test ${Thread.currentThread().name}")
-        expect(parGetActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.toBe(activities)
+        expect(getActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.toBe(activities)
     }
 }

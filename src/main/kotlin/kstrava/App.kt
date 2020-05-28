@@ -4,14 +4,14 @@ import arrow.Kind
 import arrow.core.Either
 import arrow.fx.ForIO
 import arrow.fx.IO
+import arrow.fx.extensions.io.concurrent.concurrent
 import arrow.fx.extensions.io.functor.functor
-import arrow.fx.extensions.io.monad.monad
 import arrow.fx.fix
+import arrow.fx.mtl.concurrent
+import arrow.fx.typeclasses.Concurrent
 import arrow.mtl.EitherT
 import arrow.mtl.EitherTPartialOf
-import arrow.mtl.extensions.eithert.monad.monad
 import arrow.mtl.fix
-import arrow.typeclasses.Monad
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
@@ -27,13 +27,13 @@ fun <E, F, A, B> lift(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> 
     { a -> EitherT(f(a)) }
 
 fun app(accessTokenFileName: String): IO<Unit> {
-    val M: Monad<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.monad(IO.monad())
+    val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = lift(::readAccessToken)
     val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
-        { accessToken: AccessToken -> getActivities(M, lift(::getAthleteActivities), lift(::getAthlete), accessToken) }
+        { accessToken: AccessToken -> getActivities(C, lift(::getAthleteActivities), lift(::getAthlete), accessToken) }
 
     val maybeActivities = listActitivies(
-        M,
+        C,
         readAccessToken,
         getActivities,
         accessTokenFileName

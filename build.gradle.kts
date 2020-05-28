@@ -37,8 +37,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jackson}")
     implementation("com.github.ajalt:clikt:${Versions.clickt}")
     implementation("io.arrow-kt:arrow-fx:${Versions.arrow}")
-    implementation("io.arrow-kt:arrow-syntax:${Versions.arrow}")
     implementation("io.arrow-kt:arrow-mtl:${Versions.arrow}")
+    implementation("io.arrow-kt:arrow-fx-mtl:${Versions.arrow}")
+    implementation("io.arrow-kt:arrow-syntax:${Versions.arrow}")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
