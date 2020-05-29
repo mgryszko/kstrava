@@ -1,9 +1,5 @@
 package com.grysz.kstrava.strava
 
-import arrow.Kind
-import arrow.core.ForId
-import arrow.core.Id
-import arrow.core.extensions.id.monad.monad
 import arrow.fx.IO
 import arrow.fx.extensions.io.concurrent.concurrent
 import arrow.fx.fix
@@ -25,7 +21,6 @@ import com.grysz.kstrava.left
 import com.grysz.kstrava.right
 import com.grysz.kstrava.runE
 import com.grysz.kstrava.runIO
-import com.grysz.kstrava.value
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterAll
@@ -147,8 +142,8 @@ class ApiTest {
 }
 
 class GetActivitiesTest {
-    val getAthlete: (AccessToken) -> Kind<ForId, ApiAthlete> = mockk()
-    val getAthleteActivities: (AccessToken) -> Kind<ForId, List<ApiActivity>> = mockk()
+    val getAthlete: (AccessToken) -> IO<ApiAthlete> = mockk()
+    val getAthleteActivities: (AccessToken) -> IO<List<ApiActivity>> = mockk()
 
     @Test
     fun `get activities`() {
@@ -183,11 +178,10 @@ class GetActivitiesTest {
                 type = "::type::"
             )
         )
+        every { getAthlete(accessToken) } returns IO { apiAthlete }
+        every { getAthleteActivities(accessToken) } returns IO { apiActivities }
 
-        every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { getAthleteActivities(accessToken) } returns Id(apiActivities)
-
-        expect(getActivities(Id.monad(), getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
+        expect(getActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.toBe(activities)
     }
 
     @Test
@@ -208,54 +202,11 @@ class GetActivitiesTest {
             )
         )
 
-        every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { getAthleteActivities(accessToken) } returns Id(apiActivities)
+        every { getAthlete(accessToken) } returns IO { apiAthlete }
+        every { getAthleteActivities(accessToken) } returns IO { apiActivities }
 
-        expect(getActivities(Id.monad(), getAthleteActivities, getAthlete, accessToken)).value.all {
+        expect(getActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.all {
             feature { f(it::gear) }.toBe(null)
         }
-    }
-}
-
-class ParGetActivitiesTest {
-    val apiAthlete = ApiAthlete(
-        bikes = listOf(
-            ApiGear(id = "::bikeId1::", name = "::bikeName1::"),
-            ApiGear(id = "::bikeId2::", name = "::bikeName2::")
-        ),
-        shoes = listOf(
-            ApiGear(id = "::shoeId::", name = "::shoeName::")
-        )
-    )
-    val apiActivities = listOf(
-        ApiActivity(
-            id = 1,
-            distance = 123.99.toBigDecimal(),
-            gear_id = "::bikeId2::",
-            name = "::name::",
-            private = true,
-            start_date_local = "2020-01-02T03:04:05Z",
-            type = "::type::"
-        )
-    )
-    val activities = listOf(
-        Activity(
-            id = 1,
-            distance = Distance(123),
-            gear = Gear("::bikeId2::", "::bikeName2::"),
-            name = "::name::",
-            private = true,
-            startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
-            type = "::type::"
-        )
-    )
-
-    val getAthlete: (AccessToken) -> IO<ApiAthlete> = { IO { apiAthlete } }
-    val getAthleteActivities: (AccessToken) -> IO<List<ApiActivity>> = { IO { apiActivities } }
-
-    @Test
-    fun `par get activities`() {
-        println("test ${Thread.currentThread().name}")
-        expect(getActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.toBe(activities)
     }
 }

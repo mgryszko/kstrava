@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.right
 import arrow.fx.IO
 import arrow.fx.typeclasses.Concurrent
-import arrow.typeclasses.Monad
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.jackson.responseObject
@@ -64,18 +63,6 @@ fun getAthlete(
         .responseObject<ApiAthlete>()
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
-
-fun <F> getActivities(
-    M: Monad<F>,
-    getAthleteActivities: (AccessToken) -> Kind<F, List<ApiActivity>>,
-    getAthlete: (AccessToken) -> Kind<F, ApiAthlete>,
-    accessToken: AccessToken
-): Kind<F, List<Activity>> =
-    M.fx.monad {
-        val apiActivities = !getAthleteActivities(accessToken)
-        val apiAthlete = !getAthlete(accessToken)
-        apiActivities.map { toActivity(it, apiAthlete) }
-    }
 
 fun <F> getActivities(
     C: Concurrent<F>,
