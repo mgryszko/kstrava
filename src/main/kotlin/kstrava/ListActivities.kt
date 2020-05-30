@@ -34,13 +34,12 @@ object TokenAccessError : ListActivitiesError()
 
 data class StravaApiError(val exception: Throwable) : ListActivitiesError()
 
-fun <F> listActitivies(
-    M: Monad<F>,
+fun <F> Monad<F>.listActitivies(
     readAccessToken: (String) -> Kind<F, AccessToken>,
     getActivities: (AccessToken) -> Kind<F, List<Activity>>,
     accessTokenFileName: String
 ): Kind<F, List<Activity>> =
-    M.fx.monad {
+    fx.monad {
         val accessToken = !readAccessToken(accessTokenFileName)
         !getActivities(accessToken)
     }

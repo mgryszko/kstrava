@@ -23,7 +23,9 @@ class ListActivitiesTest {
         every { readAccessToken(accessTokenFileName) } returns Id(accessToken)
         every { getActivities(accessToken) } returns Id(activities)
 
-        expect(listActitivies(Id.monad(), readAccessToken, getActivities, accessTokenFileName)).value.toBe(activities)
+        Id.monad().run {
+            expect(listActitivies(readAccessToken, getActivities, accessTokenFileName)).value.toBe(activities)
+        }
     }
 }
 

@@ -41,12 +41,13 @@ fun app(accessTokenFileName: String): IO<Unit> {
             }
         }
 
-    val maybeActivities = listActitivies(
-        C,
-        readAccessToken,
-        getActivities,
-        accessTokenFileName
-    ).fix()
+    val maybeActivities = C.run {
+        listActitivies(
+            readAccessToken,
+            getActivities,
+            accessTokenFileName
+        ).fix()
+    }
     return maybeActivities.fold(
         IO.functor(),
         { e -> println("error: $e") },
