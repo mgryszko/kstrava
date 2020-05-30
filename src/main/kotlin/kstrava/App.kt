@@ -5,6 +5,7 @@ import arrow.core.Either
 import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.extensions.io.concurrent.concurrent
+import arrow.fx.extensions.io.concurrent.dispatchers
 import arrow.fx.extensions.io.functor.functor
 import arrow.fx.fix
 import arrow.fx.mtl.concurrent
@@ -30,7 +31,14 @@ fun app(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = lift(::readAccessToken)
     val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
-        { accessToken: AccessToken -> getActivities(C, lift(::getAthleteActivities), lift(::getAthlete), accessToken) }
+        { accessToken: AccessToken ->
+            getActivities(
+                C.parApplicative(dispatchers().io()),
+                lift(::getAthleteActivities),
+                lift(::getAthlete),
+                accessToken
+            )
+        }
 
     val maybeActivities = listActitivies(
         C,

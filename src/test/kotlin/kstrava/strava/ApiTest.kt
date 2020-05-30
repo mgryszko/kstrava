@@ -1,8 +1,7 @@
 package com.grysz.kstrava.strava
 
-import arrow.fx.IO
-import arrow.fx.extensions.io.concurrent.concurrent
-import arrow.fx.fix
+import arrow.core.Id
+import arrow.core.extensions.id.applicative.applicative
 import ch.tutteli.atrium.api.fluent.en_GB.all
 import ch.tutteli.atrium.api.fluent.en_GB.feature
 import ch.tutteli.atrium.api.fluent.en_GB.isA
@@ -20,7 +19,7 @@ import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right
 import com.grysz.kstrava.runE
-import com.grysz.kstrava.runIO
+import com.grysz.kstrava.value
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.AfterAll
@@ -142,8 +141,8 @@ class ApiTest {
 }
 
 class GetActivitiesTest {
-    val getAthlete: (AccessToken) -> IO<ApiAthlete> = mockk()
-    val getAthleteActivities: (AccessToken) -> IO<List<ApiActivity>> = mockk()
+    val getAthlete: (AccessToken) -> Id<ApiAthlete> = mockk()
+    val getAthleteActivities: (AccessToken) -> Id<List<ApiActivity>> = mockk()
 
     @Test
     fun `get activities`() {
@@ -178,10 +177,10 @@ class GetActivitiesTest {
                 type = "::type::"
             )
         )
-        every { getAthlete(accessToken) } returns IO { apiAthlete }
-        every { getAthleteActivities(accessToken) } returns IO { apiActivities }
+        every { getAthlete(accessToken) } returns Id(apiAthlete)
+        every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-        expect(getActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.toBe(activities)
+        expect(getActivities(Id.applicative(), getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
     }
 
     @Test
@@ -202,11 +201,12 @@ class GetActivitiesTest {
             )
         )
 
-        every { getAthlete(accessToken) } returns IO { apiAthlete }
-        every { getAthleteActivities(accessToken) } returns IO { apiActivities }
+        every { getAthlete(accessToken) } returns Id(apiAthlete)
+        every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-        expect(getActivities(IO.concurrent(), getAthleteActivities, getAthlete, accessToken).fix()).runIO.right.all {
+        expect(getActivities(Id.applicative(), getAthleteActivities, getAthlete, accessToken)).value.all {
             feature { f(it::gear) }.toBe(null)
         }
     }
 }
+
