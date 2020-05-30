@@ -29,7 +29,7 @@ data class Table<in A>(val columns: List<MinWidthColumn>, val renderers: List<Sh
 fun <A> Table<A>.fitContent(values: List<A>): Table<A> {
     val newColumns = values.fold(columns) { newColumns, value ->
         newColumns.zip(renderers).fold(emptyList()) { acc: List<MinWidthColumn>, (column: MinWidthColumn, renderer: Show<A>) ->
-            acc + column.fitTo(with(renderer) { value.show().length })
+            acc + column.fitTo(renderer.run { value.show().length })
         }
     }
     return copy(columns = newColumns, renderers = renderers)

@@ -20,4 +20,4 @@ private fun <A> Table<A>.separatorRow() = columns.joinToString(COLUMN_SEPARATOR,
 private fun <A> Table<A>.valueRow(formatSpec: String, value: A) =
     formatSpec.format(*cells(value).toTypedArray())
 
-private fun <A> Table<A>.cells(value: A) = renderers.map { with(it) { value.show() } }
+private fun <A> Table<A>.cells(value: A) = renderers.map { it.run { value.show() } }

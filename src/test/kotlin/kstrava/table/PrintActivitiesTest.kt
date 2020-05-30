@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 class PrintActivitiesTest {
     @Test
     fun `distance renderer`() {
-        with(distanceRenderer) {
+        distanceRenderer.run {
             expect(anyActivity.copy(distance = Distance(meters = 124)).show()).toBe("0.12")
             expect(anyActivity.copy(distance = Distance(meters = 125)).show()).toBe("0.13")
             expect(anyActivity.copy(distance = Distance(meters = 8849)).show()).toBe("8.85")
@@ -22,7 +22,7 @@ class PrintActivitiesTest {
 
     @Test
     fun `start date renderer`() {
-        with(startDateRenderer) {
+        startDateRenderer.run {
             expect(anyActivity.copy(startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5)).show()).toBe("2020-01-02 03:04")
         }
     }
@@ -30,10 +30,10 @@ class PrintActivitiesTest {
     @Test
     fun `gear renderers`() {
         val activity = anyActivity.copy(gear = Gear("::id::", "::name::"))
-        with(gearIdRenderer) {
+        gearIdRenderer.run {
             expect(activity.show()).toBe("::id::")
         }
-        with(gearNameRenderer) {
+        gearNameRenderer.run {
             expect(activity.show()).toBe("::name::")
         }
     }
@@ -41,10 +41,10 @@ class PrintActivitiesTest {
     @Test
     fun `null gear renderers`() {
         val activity = anyActivity.copy(gear = null)
-        with(gearIdRenderer) {
+        gearIdRenderer.run {
             expect(activity.show()).toBe("none")
         }
-        with(gearNameRenderer) {
+        gearNameRenderer.run {
             expect(activity.show()).toBe("")
         }
     }
