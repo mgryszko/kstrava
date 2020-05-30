@@ -1,7 +1,8 @@
 package com.grysz.kstrava.strava
 
+import arrow.core.ForId
 import arrow.core.Id
-import arrow.core.extensions.id.applicative.applicative
+import arrow.typeclasses.Applicative
 import ch.tutteli.atrium.api.fluent.en_GB.all
 import ch.tutteli.atrium.api.fluent.en_GB.feature
 import ch.tutteli.atrium.api.fluent.en_GB.isA
@@ -15,6 +16,7 @@ import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
+import com.grysz.kstrava.IdApplicativeDependency
 import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right
@@ -28,6 +30,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
 import kotlin.test.Test
 
@@ -140,12 +143,13 @@ class ApiTest {
     }
 }
 
+@ExtendWith(IdApplicativeDependency::class)
 class GetActivitiesTest {
     val getAthlete: (AccessToken) -> Id<ApiAthlete> = mockk()
     val getAthleteActivities: (AccessToken) -> Id<List<ApiActivity>> = mockk()
 
     @Test
-    fun `get activities`() {
+    fun Applicative<ForId>.`get activities`() {
         val apiAthlete = ApiAthlete(
             bikes = listOf(
                 ApiGear(id = "::bikeId1::", name = "::bikeName1::"),
@@ -180,13 +184,11 @@ class GetActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-        Id.applicative().run {
-            expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
-        }
+        expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
     }
 
     @Test
-    fun `gear not found`() {
+    fun Applicative<ForId>.`gear not found`() {
         val apiAthlete = ApiAthlete(
             bikes = emptyList(),
             shoes = emptyList()
@@ -206,11 +208,9 @@ class GetActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-        Id.applicative().run {
             expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.all {
                 feature { f(it::gear) }.toBe(null)
             }
-        }
     }
 }
 
