@@ -64,16 +64,14 @@ fun getAthlete(
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
 
-fun <F> getActivities(
-    A: Applicative<F>,
+fun <F> Applicative<F>.getActivities(
     getAthleteActivities: (AccessToken) -> Kind<F, List<ApiActivity>>,
     getAthlete: (AccessToken) -> Kind<F, ApiAthlete>,
     accessToken: AccessToken
-): Kind<F, List<Activity>> = A.run {
+): Kind<F, List<Activity>> =
     getAthleteActivities(accessToken).map2(getAthlete(accessToken)) { (apiActivities, apiAthlete) ->
         apiActivities.map { toActivity(it, apiAthlete) }
     }
-}
 
 private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
     fun toDistance(meters: BigDecimal) = meters.round(MathContext(0, RoundingMode.FLOOR)).toInt()

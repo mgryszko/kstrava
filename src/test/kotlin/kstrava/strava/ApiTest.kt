@@ -180,7 +180,9 @@ class GetActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-        expect(getActivities(Id.applicative(), getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
+        Id.applicative().run {
+            expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
+        }
     }
 
     @Test
@@ -204,8 +206,10 @@ class GetActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-        expect(getActivities(Id.applicative(), getAthleteActivities, getAthlete, accessToken)).value.all {
-            feature { f(it::gear) }.toBe(null)
+        Id.applicative().run {
+            expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.all {
+                feature { f(it::gear) }.toBe(null)
+            }
         }
     }
 }

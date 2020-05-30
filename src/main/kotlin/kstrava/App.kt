@@ -24,20 +24,21 @@ import com.grysz.kstrava.token.readAccessToken
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
-fun <E, F, A, B> lift(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
+fun <E, F, A, B> liftEitherT(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
     { a -> EitherT(f(a)) }
 
 fun app(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val readAccessToken = lift(::readAccessToken)
+    val readAccessToken = liftEitherT(::readAccessToken)
     val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
         { accessToken: AccessToken ->
-            getActivities(
-                C.parApplicative(dispatchers().io()),
-                lift(::getAthleteActivities),
-                lift(::getAthlete),
-                accessToken
-            )
+            C.parApplicative(dispatchers().io()).run {
+                getActivities(
+                    liftEitherT(::getAthleteActivities),
+                    liftEitherT(::getAthlete),
+                    accessToken
+                )
+            }
         }
 
     val maybeActivities = listActitivies(
