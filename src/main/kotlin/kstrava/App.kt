@@ -17,6 +17,7 @@ import com.grysz.kstrava.strava.getActivities
 import com.grysz.kstrava.strava.getAthlete
 import com.grysz.kstrava.strava.getAthleteActivities
 import com.grysz.kstrava.table.printActivitiesTable
+import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.readAccessToken
 
 typealias IOE<A, B> = IO<Either<A, B>>
@@ -52,8 +53,20 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     ).fix()
 }
 
-fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<String>, name: String?): IO<Unit> {
-    return IO {
-        println("update: $accessTokenFileName, $activityIds, $name")
+fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
+    val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
+    val readAccessToken = liftEitherT(::readAccessToken)
+    val maybeActivities = C.run {
+        updateActitivies(
+            readAccessToken,
+            accessTokenFileName,
+            activityIds.map(::ActivityId),
+            ActivityName(name)
+        ).fix()
     }
+    return maybeActivities.fold(
+        IO.functor(),
+        { e -> println("error: $e") },
+        ::printActivitiesTable
+    ).fix()
 }

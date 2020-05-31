@@ -2,13 +2,8 @@ package com.grysz.kstrava
 
 import arrow.Kind
 import arrow.typeclasses.Monad
+import com.grysz.kstrava.token.AccessToken
 import java.time.LocalDateTime
-
-data class AccessToken(val token: String) {
-    init {
-        require(token.isNotBlank()) { "token must not be blank" }
-    }
-}
 
 data class Activity(
     val id: Long,
@@ -19,6 +14,15 @@ data class Activity(
     val startDate: LocalDateTime,
     val type: String
 )
+
+data class ActivityId(val id: Long)
+
+data class ActivityName(val name: String) {
+    init {
+        require(name.isNotBlank()) { "name must not be blank" }
+    }
+}
+
 
 data class Distance(val meters: Int) {
     init {

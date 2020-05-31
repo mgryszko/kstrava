@@ -2,7 +2,6 @@ package com.grysz.kstrava.token
 
 import arrow.core.Either
 import arrow.fx.IO
-import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.IOE
 import com.grysz.kstrava.ListActivitiesError
 import com.grysz.kstrava.TokenAccessError

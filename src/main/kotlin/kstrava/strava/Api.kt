@@ -8,13 +8,13 @@ import arrow.typeclasses.Applicative
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.jackson.responseObject
-import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
 import com.grysz.kstrava.IOE
 import com.grysz.kstrava.ListActivitiesError
 import com.grysz.kstrava.StravaApiError
+import com.grysz.kstrava.token.AccessToken
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode

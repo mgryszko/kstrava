@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.long
 
 class ListActivitiesCommand : CliktCommand(name = "list") {
     private val config by requireObject<Map<String, String>>()
@@ -21,7 +22,7 @@ class ListActivitiesCommand : CliktCommand(name = "list") {
 
 class UpdateActivitiesCommand : CliktCommand(name = "update") {
     private val name by option(help = "Activity name").required()
-    private val activityIds: List<String> by argument().multiple()
+    private val activityIds: List<Long> by argument().long().multiple()
     private val config by requireObject<Map<String, String>>()
 
     override fun run() {

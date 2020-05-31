@@ -2,7 +2,6 @@ package com.grysz.kstrava.token
 
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
-import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.TokenAccessError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right

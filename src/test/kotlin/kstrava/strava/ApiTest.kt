@@ -12,7 +12,6 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
-import com.grysz.kstrava.AccessToken
 import com.grysz.kstrava.Activity
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
@@ -21,6 +20,7 @@ import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right
 import com.grysz.kstrava.runE
+import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.value
 import io.mockk.every
 import io.mockk.mockk
