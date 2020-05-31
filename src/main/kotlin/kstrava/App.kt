@@ -14,6 +14,9 @@ import arrow.mtl.EitherT
 import arrow.mtl.EitherTPartialOf
 import arrow.mtl.fix
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.findOrSetObject
+import com.github.ajalt.clikt.core.requireObject
+import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.grysz.kstrava.strava.getActivities
@@ -27,7 +30,7 @@ typealias IOE<A, B> = IO<Either<A, B>>
 fun <E, F, A, B> liftEitherT(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
     { a -> EitherT(f(a)) }
 
-fun app(accessTokenFileName: String): IO<Unit> {
+fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = liftEitherT(::readAccessToken)
     val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
@@ -55,10 +58,26 @@ fun app(accessTokenFileName: String): IO<Unit> {
     ).fix()
 }
 
-fun main(args: Array<String>) = object : CliktCommand(name = "kstrava") {
-    val accessTokenFileName: String by option(help = "File name containing access token").default(".access-token")
+class ListActivitiesCommand : CliktCommand(name = "list") {
+    private val config by requireObject<Map<String, String>>()
 
     override fun run() {
-        app(accessTokenFileName).unsafeRunSync()
+        val accessTokenFileName = config["accessTokenFileName"] ?: error("command context should contain accessTokenFileName")
+        listActivitiesApp(accessTokenFileName).unsafeRunSync()
     }
-}.main(args)
+}
+
+class UpdateActivitiesCommand : CliktCommand(name = "update") {
+    override fun run() {
+        println("update called")
+    }
+}
+
+fun main(args: Array<String>) = object : CliktCommand(name = "kstrava") {
+    private val accessTokenFileName: String by option(help = "File name containing access token").default(".access-token")
+    private val config by findOrSetObject { mutableMapOf<String, String>() }
+
+    override fun run() {
+        config["accessTokenFileName"] = accessTokenFileName
+    }
+}.subcommands(ListActivitiesCommand(), UpdateActivitiesCommand()).main(args)

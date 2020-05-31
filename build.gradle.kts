@@ -53,6 +53,7 @@ dependencies {
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     languageVersion = "1.3"
+    jvmTarget = "11"
     freeCompilerArgs += listOf("-Xnew-inference")
 }
 
