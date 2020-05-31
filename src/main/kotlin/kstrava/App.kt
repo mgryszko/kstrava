@@ -51,3 +51,9 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
         ::printActivitiesTable
     ).fix()
 }
+
+fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<String>, name: String?): IO<Unit> {
+    return IO {
+        println("update: $accessTokenFileName, $activityIds, $name")
+    }
+}
