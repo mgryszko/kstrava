@@ -33,6 +33,10 @@ data class ApiActivity(
     val type: String
 )
 
+data class UpdatableApiActivity(
+    val name: String
+)
+
 data class ApiAthlete(
     val bikes: List<ApiGear>,
     val shoes: List<ApiGear>
@@ -49,6 +53,21 @@ fun getAthleteActivities(
     val (_, _, result) = Fuel.get(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .responseObject<List<ApiActivity>>()
+    result.fold({ it.right() }, { StravaApiError(it.exception).left() })
+}
+
+fun updateAthleteActivity(
+    accessToken: AccessToken,
+    id: Long,
+    activity: UpdatableApiActivity,
+    baseUrl: String = "https://www.strava.com"
+): IOE<ListActivitiesError, ApiActivity> = IO {
+    val path = "$baseUrl/api/v3/activity/${id}"
+
+    val (_, _, result) = Fuel.put(path)
+        .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
+        .objectBody(activity)
+        .responseObject<ApiActivity>()
     result.fold({ it.right() }, { StravaApiError(it.exception).left() })
 }
 

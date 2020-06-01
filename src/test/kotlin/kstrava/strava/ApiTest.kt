@@ -97,6 +97,64 @@ class ApiTest {
     }
 
     @Nested
+    @DisplayName("get activities")
+    inner class UpdateActivity {
+        @Test
+        fun ok() {
+            wm.stubFor(
+                put(urlMatching("/api/v3/activity/123"))
+                    .withHeader("Authorization", equalTo("Bearer ${accessToken.token}"))
+                    .withRequestBody(
+                        equalToJson(
+                            """{
+    "name": "::updated name::"
+}"""
+                        )
+                    )
+                    .willReturn(
+                        okJson(
+                            """{
+    "id": 1,
+    "distance": 101.22,
+    "gear_id": "::gearId::",
+    "name": "::updated name::",
+    "private": true,
+    "start_date_local": "2020-01-02T03:04:05Z",
+    "type": "::type::"
+}"""
+                        )
+                    )
+            )
+
+            expect(
+                updateAthleteActivity(
+                    accessToken,
+                    123,
+                    UpdatableApiActivity(name = "::updated name::"),
+                    "http://localhost:${wm.port()}"
+                )
+            ).runE.right.toBe(
+                ApiActivity(
+                    id = 1,
+                    distance = 101.22.toBigDecimal(),
+                    gear_id = "::gearId::",
+                    name = "::updated name::",
+                    private = true,
+                    start_date_local = "2020-01-02T03:04:05Z",
+                    type = "::type::"
+                )
+            )
+        }
+
+        @Test
+        fun unauthorized() {
+            wm.stubFor(put(anyUrl()).willReturn(status(401)))
+
+            expect(updateAthleteActivity(accessToken, 0, UpdatableApiActivity(""), "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
+        }
+    }
+
+    @Nested
     @DisplayName("get athlete")
     inner class GetAthlete {
         @Test
@@ -208,9 +266,9 @@ class GetActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { getAthleteActivities(accessToken) } returns Id(apiActivities)
 
-            expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.all {
-                feature { f(it::gear) }.toBe(null)
-            }
+        expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.all {
+            feature { f(it::gear) }.toBe(null)
+        }
     }
 }
 
