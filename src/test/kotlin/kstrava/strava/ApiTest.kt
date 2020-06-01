@@ -50,6 +50,8 @@ class ApiTest {
         wm.stop()
     }
 
+    private fun baseUrl() = "http://localhost:${wm.port()}"
+
     @Nested
     @DisplayName("get activities")
     inner class GetActivities {
@@ -73,7 +75,7 @@ class ApiTest {
                     )
             )
 
-            expect(getAthleteActivities(accessToken, "http://localhost:${wm.port()}")).runE.right.toBe(
+            expect(getAthleteActivities(accessToken, baseUrl())).runE.right.toBe(
                 listOf(
                     ApiActivity(
                         id = 1,
@@ -92,7 +94,7 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
-            expect(getAthleteActivities(accessToken, "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
+            expect(getAthleteActivities(accessToken, baseUrl())).runE.left.isA<StravaApiError>()
         }
     }
 
@@ -128,10 +130,10 @@ class ApiTest {
 
             expect(
                 updateAthleteActivity(
-                    accessToken,
-                    123,
-                    UpdatableApiActivity(name = "::updated name::"),
-                    "http://localhost:${wm.port()}"
+                    accessToken = accessToken,
+                    id = 123,
+                    activity = UpdatableApiActivity(name = "::updated name::"),
+                    baseUrl = baseUrl()
                 )
             ).runE.right.toBe(
                 ApiActivity(
@@ -150,7 +152,14 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(put(anyUrl()).willReturn(status(401)))
 
-            expect(updateAthleteActivity(accessToken, 0, UpdatableApiActivity(""), "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
+            expect(
+                updateAthleteActivity(
+                    accessToken = accessToken,
+                    id = 0,
+                    activity = UpdatableApiActivity(""),
+                    baseUrl = baseUrl()
+                )
+            ).runE.left.isA<StravaApiError>()
         }
     }
 
@@ -186,7 +195,7 @@ class ApiTest {
                     )
             )
 
-            expect(getAthlete(accessToken, "http://localhost:${wm.port()}")).runE.right.toBe(
+            expect(getAthlete(accessToken, baseUrl())).runE.right.toBe(
                 ApiAthlete(
                     bikes = listOf(
                         ApiGear("b0000001", "::bike1::"),
@@ -203,7 +212,7 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
-            expect(getAthlete(accessToken, "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
+            expect(getAthlete(accessToken, baseUrl())).runE.left.isA<StravaApiError>()
         }
     }
 }
