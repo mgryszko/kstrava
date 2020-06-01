@@ -90,7 +90,7 @@ class ApiTest {
 
         @Test
         fun unauthorized() {
-            wm.stubFor(get(urlMatching("/api/v3/athlete/activities")).willReturn(status(401)))
+            wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
             expect(getAthleteActivities(accessToken, "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
         }
@@ -197,6 +197,13 @@ class ApiTest {
                     )
                 )
             )
+        }
+
+        @Test
+        fun unauthorized() {
+            wm.stubFor(get(anyUrl()).willReturn(status(401)))
+
+            expect(getAthlete(accessToken, "http://localhost:${wm.port()}")).runE.left.isA<StravaApiError>()
         }
     }
 }
