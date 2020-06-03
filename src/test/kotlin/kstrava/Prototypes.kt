@@ -1,6 +1,9 @@
 package com.grysz.kstrava
 
+import com.grysz.kstrava.token.AccessToken
 import java.time.LocalDateTime
+
+val anyAccessToken = AccessToken(":")
 
 val anyActivity = Activity(
     id = 0,

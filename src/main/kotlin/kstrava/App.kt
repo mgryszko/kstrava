@@ -2,6 +2,7 @@ package com.grysz.kstrava
 
 import arrow.Kind
 import arrow.core.Either
+import arrow.core.right
 import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.extensions.io.concurrent.concurrent
@@ -19,6 +20,7 @@ import com.grysz.kstrava.strava.getAthleteActivities
 import com.grysz.kstrava.table.printActivitiesTable
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.readAccessToken
+import java.time.LocalDateTime
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
@@ -28,8 +30,7 @@ fun <E, F, A, B> liftEitherT(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E,
 fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = liftEitherT(::readAccessToken)
-    val getActivities: (AccessToken) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, List<Activity>> =
-        { accessToken: AccessToken ->
+    val getActivities = { accessToken: AccessToken ->
             C.parApplicative(dispatchers().io()).run {
                 getActivities(
                     liftEitherT(::getAthleteActivities),
@@ -56,9 +57,23 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 fun updateActivitiesApp(accessTokenFileName: String, activityId: Long, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = liftEitherT(::readAccessToken)
+    val updateActivity = { accessToken: AccessToken, activityId: ActivityId, activityName: ActivityName ->
+            EitherT(IO {
+                Activity(
+                    id = 0,
+                    distance = Distance(meters = 1),
+                    gear = null,
+                    name = "",
+                    private = false,
+                    startDate = LocalDateTime.MIN,
+                    type = ""
+                ).right()
+            })
+        }
     val maybeActivities = C.run {
         updateActitivies(
             readAccessToken,
+            updateActivity,
             accessTokenFileName,
             ActivityId(activityId),
             ActivityName(name)
@@ -67,6 +82,6 @@ fun updateActivitiesApp(accessTokenFileName: String, activityId: Long, name: Str
     return maybeActivities.fold(
         IO.functor(),
         { e -> println("error: $e") },
-        { activity -> activity.fold({ println("no activity updated")}, { printActivitiesTable(listOf(it)) }) }
+        { activity -> printActivitiesTable(listOf(activity)) }
     ).fix()
 }
