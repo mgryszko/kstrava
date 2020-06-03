@@ -2,7 +2,6 @@ package com.grysz.kstrava
 
 import arrow.Kind
 import arrow.core.Either
-import arrow.core.right
 import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.extensions.io.concurrent.concurrent
@@ -17,28 +16,32 @@ import arrow.mtl.fix
 import com.grysz.kstrava.strava.getActivities
 import com.grysz.kstrava.strava.getAthlete
 import com.grysz.kstrava.strava.getAthleteActivities
+import com.grysz.kstrava.strava.updateActivities
+import com.grysz.kstrava.strava.updateAthleteActivity
 import com.grysz.kstrava.table.printActivitiesTable
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.readAccessToken
-import java.time.LocalDateTime
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
 fun <E, F, A, B> liftEitherT(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E, F, B> =
     { a -> EitherT(f(a)) }
 
+fun <E, F, A, B, C, D> liftEitherT(f: (A, B, C) -> Kind<F, Either<E, D>>): (A, B, C) -> EitherT<E, F, D> =
+    { a, b, c -> EitherT(f(a, b, c)) }
+
 fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = liftEitherT(::readAccessToken)
     val getActivities = { accessToken: AccessToken ->
-            C.parApplicative(dispatchers().io()).run {
-                getActivities(
-                    liftEitherT(::getAthleteActivities),
-                    liftEitherT(::getAthlete),
-                    accessToken
-                )
-            }
+        C.parApplicative(dispatchers().io()).run {
+            getActivities(
+                liftEitherT(::getAthleteActivities),
+                liftEitherT(::getAthlete),
+                accessToken
+            )
         }
+    }
 
     val maybeActivities = C.run {
         listActitivies(
@@ -58,18 +61,16 @@ fun updateActivitiesApp(accessTokenFileName: String, activityId: Long, name: Str
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = liftEitherT(::readAccessToken)
     val updateActivity = { accessToken: AccessToken, activityId: ActivityId, activityName: ActivityName ->
-            EitherT(IO {
-                Activity(
-                    id = 0,
-                    distance = Distance(meters = 1),
-                    gear = null,
-                    name = "",
-                    private = false,
-                    startDate = LocalDateTime.MIN,
-                    type = ""
-                ).right()
-            })
+        C.parApplicative(dispatchers().io()).run {
+            updateActivities(
+                liftEitherT(::updateAthleteActivity),
+                liftEitherT(::getAthlete),
+                accessToken,
+                activityId,
+                activityName
+            )
         }
+    }
     val maybeActivities = C.run {
         updateActitivies(
             readAccessToken,

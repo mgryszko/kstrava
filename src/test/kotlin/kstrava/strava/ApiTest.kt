@@ -13,6 +13,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import com.grysz.kstrava.Activity
+import com.grysz.kstrava.ActivityId
+import com.grysz.kstrava.ActivityName
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
 import com.grysz.kstrava.IdApplicativeDependency
@@ -104,7 +106,7 @@ class ApiTest {
         @Test
         fun ok() {
             wm.stubFor(
-                put(urlMatching("/api/v3/activity/123"))
+                put(urlMatching("/api/v3/activities/123"))
                     .withHeader("Authorization", equalTo("Bearer ${accessToken.token}"))
                     .withRequestBody(
                         equalToJson(
@@ -285,6 +287,71 @@ class GetActivitiesTest {
         expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.all {
             feature { f(it::gear) }.toBe(null)
         }
+    }
+}
+
+@ExtendWith(IdApplicativeDependency::class)
+class UpdateActivitiesTest {
+    val getAthlete: (AccessToken) -> Id<ApiAthlete> = mockk()
+    val updateAthleteActivity: (AccessToken, Long, UpdatableApiActivity) -> Id<ApiActivity> = mockk()
+
+    @Test
+    fun Applicative<ForId>.`update activities`() {
+        val apiAthlete = ApiAthlete(
+            bikes = listOf(
+                ApiGear(id = "::bikeId1::", name = "::bikeName1::"),
+                ApiGear(id = "::bikeId2::", name = "::bikeName2::")
+            ),
+            shoes = listOf(
+                ApiGear(id = "::shoeId::", name = "::shoeName::")
+            )
+        )
+        val apiActivity = ApiActivity(
+            id = 1,
+            distance = 123.99.toBigDecimal(),
+            gear_id = "::bikeId2::",
+            name = "::updated name::",
+            private = true,
+            start_date_local = "2020-01-02T03:04:05Z",
+            type = "::type::"
+        )
+        val activity = Activity(
+            id = 1,
+            distance = Distance(123),
+            gear = Gear("::bikeId2::", "::bikeName2::"),
+            name = "::updated name::",
+            private = true,
+            startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
+            type = "::type::"
+        )
+        every { getAthlete(accessToken) } returns Id(apiAthlete)
+        every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
+
+        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, ActivityId(1), ActivityName("::updated name::"))).value
+            .toBe(activity)
+    }
+
+    @Test
+    fun Applicative<ForId>.`gear not found`() {
+        val apiAthlete = ApiAthlete(
+            bikes = emptyList(),
+            shoes = emptyList()
+        )
+        val apiActivity = ApiActivity(
+                id = 1,
+                distance = 1.toBigDecimal(),
+                gear_id = "::bikeId::",
+                name = "",
+                private = false,
+                start_date_local = "2020-01-01T00:00:00Z",
+                type = ""
+            )
+
+        every { getAthlete(accessToken) } returns Id(apiAthlete)
+        every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
+
+        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, ActivityId(1), ActivityName("::updated name::"))).value
+            .feature { f(it::gear) }.toBe(null)
     }
 }
 

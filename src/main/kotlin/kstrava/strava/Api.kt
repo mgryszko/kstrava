@@ -9,6 +9,8 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.grysz.kstrava.Activity
+import com.grysz.kstrava.ActivityId
+import com.grysz.kstrava.ActivityName
 import com.grysz.kstrava.Distance
 import com.grysz.kstrava.Gear
 import com.grysz.kstrava.IOE
@@ -62,7 +64,7 @@ fun updateAthleteActivity(
     activity: UpdatableApiActivity,
     baseUrl: String = "https://www.strava.com"
 ): IOE<ListActivitiesError, ApiActivity> = IO {
-    val path = "$baseUrl/api/v3/activity/${id}"
+    val path = "$baseUrl/api/v3/activities/${id}"
 
     val (_, _, result) = Fuel.put(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
@@ -91,6 +93,19 @@ fun <F> Applicative<F>.getActivities(
     getAthleteActivities(accessToken).map2(getAthlete(accessToken)) { (apiActivities, apiAthlete) ->
         apiActivities.map { toActivity(it, apiAthlete) }
     }
+
+fun <F> Applicative<F>.updateActivities(
+    updateAthleteActivity: (AccessToken, Long, UpdatableApiActivity) -> Kind<F, ApiActivity>,
+    getAthlete: (AccessToken) -> Kind<F, ApiAthlete>,
+    accessToken: AccessToken,
+    activityId: ActivityId,
+    activityName: ActivityName
+): Kind<F, Activity> =
+    updateAthleteActivity(accessToken, activityId.id, UpdatableApiActivity(name = activityName.name))
+        .map2(getAthlete(accessToken)) { (apiActivity, apiAthlete) ->
+            toActivity(apiActivity, apiAthlete)
+        }
+
 
 private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
     fun toDistance(meters: BigDecimal) = meters.round(MathContext(0, RoundingMode.FLOOR)).toInt()
