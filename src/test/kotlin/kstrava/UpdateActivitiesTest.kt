@@ -15,17 +15,18 @@ import kotlin.test.Test
 @ExtendWith(IdMonadDependency::class)
 class UpdateActivitiesTest {
     val readAccessToken: (String) -> Kind<ForId, AccessToken> = mockk("readAccessToken")
-    val updateActivity: (AccessToken, ActivityId, ActivityName) -> Kind<ForId, Activity> = mockk("getActivities")
+    val updateActivities: (AccessToken, List<ActivityId>, ActivityName) -> Kind<ForId, List<Activity>> = mockk("getActivities")
 
     val accessTokenFileName = "::file::"
-    val activityId = ActivityId(0)
+    val activityIds = listOf(ActivityId(1), ActivityId(2))
+    val activities = listOf(anyActivity.copy(id = 1), anyActivity.copy(id = 2))
     val activityName = ActivityName(":")
 
     @Test
     fun Monad<ForId>.execute() {
         every { readAccessToken(accessTokenFileName) } returns Id(anyAccessToken)
-        every { updateActivity(anyAccessToken, activityId, activityName) } returns Id(anyActivity)
+        every { updateActivities(anyAccessToken, activityIds, activityName) } returns Id(activities)
 
-        expect(updateActitivies(readAccessToken, updateActivity, accessTokenFileName, activityId, activityName)).value.toBe(anyActivity)
+        expect(updateActitivies(readAccessToken, updateActivities, accessTokenFileName, activityIds, activityName)).value.toBe(activities)
     }
 }

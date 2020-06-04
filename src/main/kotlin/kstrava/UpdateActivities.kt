@@ -6,13 +6,13 @@ import com.grysz.kstrava.token.AccessToken
 
 fun <F> Monad<F>.updateActitivies(
     readAccessToken: (String) -> Kind<F, AccessToken>,
-    updateActivity: (AccessToken, ActivityId, ActivityName) -> Kind<F, Activity>,
+    updateActivities: (AccessToken, List<ActivityId>, ActivityName) -> Kind<F, List<Activity>>,
     accessTokenFileName: String,
-    activityId: ActivityId,
+    activityIds: List<ActivityId>,
     activityName: ActivityName
-): Kind<F, Activity> =
+): Kind<F, List<Activity>> =
     fx.monad {
         val accessToken = !readAccessToken(accessTokenFileName)
-        !updateActivity(accessToken, activityId, activityName)
+        !updateActivities(accessToken, activityIds, activityName)
     }
 

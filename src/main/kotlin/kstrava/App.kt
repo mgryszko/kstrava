@@ -57,16 +57,16 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     ).fix()
 }
 
-fun updateActivitiesApp(accessTokenFileName: String, activityId: Long, name: String): IO<Unit> {
+fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val readAccessToken = liftEitherT(::readAccessToken)
-    val updateActivity = { accessToken: AccessToken, activityId: ActivityId, activityName: ActivityName ->
+    val updateActivities = { accessToken: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
                 liftEitherT(::updateAthleteActivity),
                 liftEitherT(::getAthlete),
                 accessToken,
-                activityId,
+                activityIds,
                 activityName
             )
         }
@@ -74,15 +74,15 @@ fun updateActivitiesApp(accessTokenFileName: String, activityId: Long, name: Str
     val maybeActivities = C.run {
         updateActitivies(
             readAccessToken,
-            updateActivity,
+            updateActivities,
             accessTokenFileName,
-            ActivityId(activityId),
+            activityIds.map(::ActivityId),
             ActivityName(name)
         ).fix()
     }
     return maybeActivities.fold(
         IO.functor(),
         { e -> println("error: $e") },
-        { activity -> printActivitiesTable(listOf(activity)) }
+        ::printActivitiesTable
     ).fix()
 }

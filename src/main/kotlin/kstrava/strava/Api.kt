@@ -98,12 +98,12 @@ fun <F> Applicative<F>.updateActivities(
     updateAthleteActivity: (AccessToken, Long, UpdatableApiActivity) -> Kind<F, ApiActivity>,
     getAthlete: (AccessToken) -> Kind<F, ApiAthlete>,
     accessToken: AccessToken,
-    activityId: ActivityId,
+    activityIds: List<ActivityId>,
     activityName: ActivityName
-): Kind<F, Activity> =
-    updateAthleteActivity(accessToken, activityId.id, UpdatableApiActivity(name = activityName.name))
+): Kind<F, List<Activity>> =
+    updateAthleteActivity(accessToken, activityIds.first().id, UpdatableApiActivity(name = activityName.name))
         .map2(getAthlete(accessToken)) { (apiActivity, apiAthlete) ->
-            toActivity(apiActivity, apiAthlete)
+            listOf(toActivity(apiActivity, apiAthlete))
         }
 
 

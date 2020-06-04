@@ -327,8 +327,8 @@ class UpdateActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
 
-        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, ActivityId(1), ActivityName("::updated name::"))).value
-            .toBe(activity)
+        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, listOf(ActivityId(1)), ActivityName("::updated name::"))).value
+            .toBe(listOf(activity))
     }
 
     @Test
@@ -350,8 +350,9 @@ class UpdateActivitiesTest {
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
 
-        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, ActivityId(1), ActivityName("::updated name::"))).value
-            .feature { f(it::gear) }.toBe(null)
+        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, listOf(ActivityId(1)), ActivityName("::updated name::"))).value.all {
+            feature { f(it::gear) }.toBe(null)
+        }
     }
 }
 
