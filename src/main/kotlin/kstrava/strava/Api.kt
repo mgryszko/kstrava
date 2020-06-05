@@ -102,13 +102,19 @@ fun <F> Applicative<F>.updateActivities(
     accessToken: AccessToken,
     activityIds: List<ActivityId>,
     activityName: ActivityName
-): Kind<F, List<Activity>> {
-    return activityIds.traverse(this) { updateAthleteActivity(accessToken, it.id, UpdatableApiActivity(name = activityName.name)) }
-        .map { it.fix() }
+): Kind<F, List<Activity>> =
+    updateAthleteActivities(updateAthleteActivity, activityIds.map(ActivityId::id), accessToken, UpdatableApiActivity(name = activityName.name))
         .map2(getAthlete(accessToken)) { (apiActivities, apiAthlete) ->
             apiActivities.map { toActivity(it, apiAthlete) }
         }
-}
+
+private fun <F> Applicative<F>.updateAthleteActivities(
+    updateAthleteActivity: (AccessToken, Long, UpdatableApiActivity) -> Kind<F, ApiActivity>,
+    activityIds: List<Long>,
+    accessToken: AccessToken,
+    updatableApiActivity: UpdatableApiActivity
+): Kind<F, List<ApiActivity>> = activityIds.traverse(this) { updateAthleteActivity(accessToken, it, updatableApiActivity) }
+    .map { it.fix() }
 
 private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
     fun toDistance(meters: BigDecimal) = meters.round(MathContext(0, RoundingMode.FLOOR)).toInt()
