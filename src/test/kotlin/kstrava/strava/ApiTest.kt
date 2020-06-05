@@ -306,29 +306,55 @@ class UpdateActivitiesTest {
                 ApiGear(id = "::shoeId::", name = "::shoeName::")
             )
         )
-        val apiActivity = ApiActivity(
+        val apiActivity1 = ApiActivity(
             id = 1,
             distance = 123.99.toBigDecimal(),
-            gear_id = "::bikeId2::",
+            gear_id = "::bikeId1::",
             name = "::updated name::",
             private = true,
             start_date_local = "2020-01-02T03:04:05Z",
             type = "::type::"
         )
-        val activity = Activity(
+        val apiActivity2 = ApiActivity(
+            id = 2,
+            distance = 124.0.toBigDecimal(),
+            gear_id = "::bikeId2::",
+            name = "::updated name::",
+            private = false,
+            start_date_local = "2020-01-02T03:04:05Z",
+            type = "::type::"
+        )
+        val activity1 = Activity(
             id = 1,
             distance = Distance(123),
-            gear = Gear("::bikeId2::", "::bikeName2::"),
+            gear = Gear("::bikeId1::", "::bikeName1::"),
             name = "::updated name::",
             private = true,
             startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
             type = "::type::"
         )
+        val activity2 = Activity(
+            id = 2,
+            distance = Distance(124),
+            gear = Gear("::bikeId2::", "::bikeName2::"),
+            name = "::updated name::",
+            private = false,
+            startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
+            type = "::type::"
+        )
         every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
+        every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity1)
+        every { updateAthleteActivity(accessToken, 2, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity2)
 
-        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, listOf(ActivityId(1)), ActivityName("::updated name::"))).value
-            .toBe(listOf(activity))
+        expect(
+            updateActivities(
+                updateAthleteActivity,
+                getAthlete,
+                accessToken,
+                listOf(ActivityId(1), ActivityId(2)),
+                ActivityName("::updated name::")
+            )
+        ).value.toBe(listOf(activity1, activity2))
     }
 
     @Test
@@ -338,21 +364,27 @@ class UpdateActivitiesTest {
             shoes = emptyList()
         )
         val apiActivity = ApiActivity(
-                id = 1,
-                distance = 1.toBigDecimal(),
-                gear_id = "::bikeId::",
-                name = "",
-                private = false,
-                start_date_local = "2020-01-01T00:00:00Z",
-                type = ""
-            )
+            id = 1,
+            distance = 1.toBigDecimal(),
+            gear_id = "::bikeId::",
+            name = "",
+            private = false,
+            start_date_local = "2020-01-01T00:00:00Z",
+            type = ""
+        )
 
         every { getAthlete(accessToken) } returns Id(apiAthlete)
         every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
 
-        expect(updateActivities(updateAthleteActivity, getAthlete, accessToken, listOf(ActivityId(1)), ActivityName("::updated name::"))).value.all {
-            feature { f(it::gear) }.toBe(null)
-        }
+        expect(
+            updateActivities(
+                updateAthleteActivity,
+                getAthlete,
+                accessToken,
+                listOf(ActivityId(1)),
+                ActivityName("::updated name::")
+            )
+        ).value.all { feature { f(it::gear) }.toBe(null) }
     }
 }
 

@@ -1,6 +1,8 @@
 package com.grysz.kstrava.strava
 
 import arrow.Kind
+import arrow.core.extensions.list.traverse.traverse
+import arrow.core.fix
 import arrow.core.left
 import arrow.core.right
 import arrow.fx.IO
@@ -100,12 +102,13 @@ fun <F> Applicative<F>.updateActivities(
     accessToken: AccessToken,
     activityIds: List<ActivityId>,
     activityName: ActivityName
-): Kind<F, List<Activity>> =
-    updateAthleteActivity(accessToken, activityIds.first().id, UpdatableApiActivity(name = activityName.name))
-        .map2(getAthlete(accessToken)) { (apiActivity, apiAthlete) ->
-            listOf(toActivity(apiActivity, apiAthlete))
+): Kind<F, List<Activity>> {
+    return activityIds.traverse(this) { updateAthleteActivity(accessToken, it.id, UpdatableApiActivity(name = activityName.name)) }
+        .map { it.fix() }
+        .map2(getAthlete(accessToken)) { (apiActivities, apiAthlete) ->
+            apiActivities.map { toActivity(it, apiAthlete) }
         }
-
+}
 
 private fun toActivity(activity: ApiActivity, apiAthlete: ApiAthlete): Activity {
     fun toDistance(meters: BigDecimal) = meters.round(MathContext(0, RoundingMode.FLOOR)).toInt()
