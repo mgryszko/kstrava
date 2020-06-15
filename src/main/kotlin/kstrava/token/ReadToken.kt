@@ -10,3 +10,9 @@ import java.io.File
 fun readAccessToken(tokenFileName: String): IOE<ListActivitiesError, AccessToken> = IO {
     Either.catch({ _ -> TokenAccessError }, { AccessToken(File(tokenFileName).readText()) })
 }
+
+fun readAccessTokenFN(fileName: AccessTokenFileName): IOE<ListActivitiesError, AccessToken> = IO {
+    Either.catch({ _ -> TokenAccessError }, { AccessToken(fileName.toFile().readText()) })
+}
+
+private fun AccessTokenFileName.toFile() = File(name)

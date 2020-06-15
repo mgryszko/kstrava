@@ -7,12 +7,15 @@ import arrow.fx.IO
 import arrow.fx.extensions.io.concurrent.concurrent
 import arrow.fx.extensions.io.concurrent.dispatchers
 import arrow.fx.extensions.io.functor.functor
+import arrow.fx.extensions.io.monad.monad
 import arrow.fx.fix
 import arrow.fx.mtl.concurrent
 import arrow.fx.typeclasses.Concurrent
 import arrow.mtl.EitherT
 import arrow.mtl.EitherTPartialOf
+import arrow.mtl.extensions.eithert.monadError.monadError
 import arrow.mtl.fix
+import arrow.typeclasses.MonadError
 import com.grysz.kstrava.strava.getActivities
 import com.grysz.kstrava.strava.getAthlete
 import com.grysz.kstrava.strava.getAthleteActivities
@@ -21,6 +24,7 @@ import com.grysz.kstrava.strava.updateAthleteActivity
 import com.grysz.kstrava.table.printActivitiesTable
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.readAccessToken
+import com.grysz.kstrava.token.readAccessTokenFN
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
@@ -32,7 +36,8 @@ fun <E, F, A, B, C, D> liftEitherT(f: (A, B, C) -> Kind<F, Either<E, D>>): (A, B
 
 fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val readAccessToken = liftEitherT(::readAccessToken)
+    val ME: MonadError<EitherTPartialOf<ListActivitiesError, ForIO>, ListActivitiesError> = EitherT.monadError(IO.monad())
+    val readAccessToken = liftEitherT(::readAccessTokenFN)
     val getActivities = { accessToken: AccessToken ->
         C.parApplicative(dispatchers().io()).run {
             getActivities(
@@ -43,7 +48,7 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
         }
     }
 
-    val maybeActivities = C.run {
+    val maybeActivities = ME.run {
         listActitivies(
             readAccessToken,
             getActivities,
@@ -59,7 +64,6 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val readAccessToken = liftEitherT(::readAccessToken)
     val updateActivities = { accessToken: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
@@ -73,7 +77,7 @@ fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, na
     }
     val maybeActivities = C.run {
         updateActitivies(
-            readAccessToken,
+            liftEitherT(::readAccessToken),
             updateActivities,
             accessTokenFileName,
             activityIds.map(::ActivityId),
