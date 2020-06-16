@@ -16,6 +16,8 @@ import arrow.mtl.EitherTPartialOf
 import arrow.mtl.extensions.eithert.monadError.monadError
 import arrow.mtl.fix
 import arrow.typeclasses.MonadError
+import com.grysz.kstrava.activities.ActivityId
+import com.grysz.kstrava.activities.ActivityName
 import com.grysz.kstrava.strava.getActivities
 import com.grysz.kstrava.strava.getAthlete
 import com.grysz.kstrava.strava.getAthleteActivities

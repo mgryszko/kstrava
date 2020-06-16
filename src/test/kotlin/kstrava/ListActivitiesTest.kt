@@ -8,6 +8,7 @@ import arrow.core.fix
 import arrow.core.right
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
+import com.grysz.kstrava.activities.Activity
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.AccessTokenFileName
 import io.mockk.every

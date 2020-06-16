@@ -6,6 +6,9 @@ import arrow.core.Id
 import arrow.typeclasses.Monad
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
+import com.grysz.kstrava.activities.Activity
+import com.grysz.kstrava.activities.ActivityId
+import com.grysz.kstrava.activities.ActivityName
 import com.grysz.kstrava.token.AccessToken
 import io.mockk.every
 import io.mockk.mockk

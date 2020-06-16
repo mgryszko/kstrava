@@ -1,8 +1,8 @@
 package com.grysz.kstrava.table
 
 import arrow.typeclasses.Show
-import com.grysz.kstrava.Activity
-import com.grysz.kstrava.Distance
+import com.grysz.kstrava.activities.Activity
+import com.grysz.kstrava.activities.Distance
 import com.grysz.kstrava.table.Align.RIGHT
 import java.math.BigDecimal
 import java.math.RoundingMode

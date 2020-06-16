@@ -2,6 +2,9 @@ package com.grysz.kstrava
 
 import arrow.Kind
 import arrow.typeclasses.Monad
+import com.grysz.kstrava.activities.Activity
+import com.grysz.kstrava.activities.ActivityId
+import com.grysz.kstrava.activities.ActivityName
 import com.grysz.kstrava.token.AccessToken
 
 fun <F> Monad<F>.updateActitivies(

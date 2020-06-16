@@ -1,5 +1,7 @@
 package com.grysz.kstrava
 
+import com.grysz.kstrava.activities.Activity
+import com.grysz.kstrava.activities.Distance
 import com.grysz.kstrava.token.AccessToken
 import java.time.LocalDateTime
 
