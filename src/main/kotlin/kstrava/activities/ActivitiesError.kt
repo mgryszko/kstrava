@@ -1,9 +1,9 @@
 package com.grysz.kstrava.activities
 
-sealed class ListActivitiesError
+sealed class ActivitiesError
 
-object AccessTokenFileNameBlankError : ListActivitiesError()
+object AccessTokenFileNameBlankError : ActivitiesError()
 
-data class TokenAccessError(val exception: Throwable) : ListActivitiesError()
+data class TokenAccessError(val exception: Throwable) : ActivitiesError()
 
-data class StravaError(val exception: Throwable) : ListActivitiesError()
+data class StravaError(val exception: Throwable) : ActivitiesError()

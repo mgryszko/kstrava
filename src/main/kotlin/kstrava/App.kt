@@ -17,9 +17,9 @@ import arrow.mtl.extensions.eithert.monadError.monadError
 import arrow.mtl.fix
 import arrow.typeclasses.Functor
 import arrow.typeclasses.MonadError
+import com.grysz.kstrava.activities.ActivitiesError
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
-import com.grysz.kstrava.activities.ListActivitiesError
 import com.grysz.kstrava.activities.StravaError
 import com.grysz.kstrava.activities.TokenAccessError
 import com.grysz.kstrava.kstrava.activities.listActitivies
@@ -49,8 +49,8 @@ fun <E, EE, F, A, B, C, D> ((A, B, C) -> EitherT<E, F, D>).mapError(FF: Functor<
     { a, b, c -> this(a, b, c).mapLeft(FF, ml) }
 
 fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
-    val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val ME: MonadError<EitherTPartialOf<ListActivitiesError, ForIO>, ListActivitiesError> = EitherT.monadError(IO.monad())
+    val C: Concurrent<EitherTPartialOf<ActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
+    val ME: MonadError<EitherTPartialOf<ActivitiesError, ForIO>, ActivitiesError> = EitherT.monadError(IO.monad())
     val getActivities = { token: AccessToken ->
         C.parApplicative(dispatchers().io()).run {
             getActivities(
@@ -76,7 +76,7 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 }
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
-    val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
+    val C: Concurrent<EitherTPartialOf<ActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val updateActivities = { accessToken: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(

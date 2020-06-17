@@ -5,12 +5,12 @@ import arrow.core.Validated
 import arrow.typeclasses.ApplicativeError
 import arrow.typeclasses.MonadError
 import com.grysz.kstrava.activities.AccessTokenFileNameBlankError
+import com.grysz.kstrava.activities.ActivitiesError
 import com.grysz.kstrava.activities.Activity
-import com.grysz.kstrava.activities.ListActivitiesError
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.AccessTokenFileName
 
-fun <F> MonadError<F, ListActivitiesError>.listActitivies(
+fun <F> MonadError<F, ActivitiesError>.listActitivies(
     readAccessToken: (AccessTokenFileName) -> Kind<F, AccessToken>,
     getActivities: (AccessToken) -> Kind<F, List<Activity>>,
     accessTokenFileName: String
