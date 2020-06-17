@@ -15,6 +15,7 @@ import arrow.mtl.EitherT
 import arrow.mtl.EitherTPartialOf
 import arrow.mtl.extensions.eithert.monadError.monadError
 import arrow.mtl.fix
+import arrow.typeclasses.Functor
 import arrow.typeclasses.MonadError
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
@@ -25,7 +26,6 @@ import com.grysz.kstrava.strava.updateActivities
 import com.grysz.kstrava.strava.updateAthleteActivity
 import com.grysz.kstrava.table.printActivitiesTable
 import com.grysz.kstrava.token.AccessToken
-import com.grysz.kstrava.token.AccessTokenFileName
 import com.grysz.kstrava.token.readAccessToken
 import com.grysz.kstrava.token.readAccessTokenFN
 
@@ -37,25 +37,28 @@ fun <E, F, A, B> liftEitherT(f: (A) -> Kind<F, Either<E, B>>): (A) -> EitherT<E,
 fun <E, F, A, B, C, D> liftEitherT(f: (A, B, C) -> Kind<F, Either<E, D>>): (A, B, C) -> EitherT<E, F, D> =
     { a, b, c -> EitherT(f(a, b, c)) }
 
+fun <E, EE, F, A, B> ((A) -> EitherT<E, F, B>).mapError(FF: Functor<F>, ml: (E) -> EE): (A) -> EitherT<EE, F, B> =
+    { a -> this(a).mapLeft(FF, ml) }
+
+fun <E, EE, F, A, B, C, D> ((A, B, C) -> EitherT<E, F, D>).mapError(FF: Functor<F>, ml: (E) -> EE): (A, B, C) -> EitherT<EE, F, D> =
+    { a, b, c -> this(a, b, c).mapLeft(FF, ml) }
+
 fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val ME: MonadError<EitherTPartialOf<ListActivitiesError, ForIO>, ListActivitiesError> = EitherT.monadError(IO.monad())
-    val readAccessToken: (AccessTokenFileName) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, AccessToken> = { fileName ->
-        EitherT(readAccessTokenFN(fileName)).mapLeft(IO.functor()) { TokenAccessError(it.exception) }
-    }
-    val getActivities = { accessToken: AccessToken ->
+    val getActivities = { token: AccessToken ->
         C.parApplicative(dispatchers().io()).run {
             getActivities(
-                liftEitherT(::getAthleteActivities),
-                liftEitherT(::getAthlete),
-                accessToken
+                liftEitherT(::getAthleteActivities).mapError(IO.functor()) { StravaError(it.exception) },
+                liftEitherT(::getAthlete).mapError(IO.functor()) { StravaError(it.exception) },
+                token
             )
         }
     }
 
     val maybeActivities = ME.run {
         listActitivies(
-            readAccessToken,
+            liftEitherT(::readAccessTokenFN).mapError(IO.functor()) { TokenAccessError(it.exception) },
             getActivities,
             accessTokenFileName
         ).fix()
@@ -69,14 +72,11 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val readAccessToken: (String) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, AccessToken> = { fileName ->
-        EitherT(readAccessToken(fileName)).mapLeft(IO.functor()) { TokenAccessError(it.exception) }
-    }
     val updateActivities = { accessToken: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
-                liftEitherT(::updateAthleteActivity),
-                liftEitherT(::getAthlete),
+                liftEitherT(::updateAthleteActivity).mapError(IO.functor()) { StravaError(it.exception) },
+                liftEitherT(::getAthlete).mapError(IO.functor()) { StravaError(it.exception) },
                 accessToken,
                 activityIds,
                 activityName
@@ -85,7 +85,7 @@ fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, na
     }
     val maybeActivities = C.run {
         updateActitivies(
-            readAccessToken,
+            liftEitherT(::readAccessToken).mapError(IO.functor()) { TokenAccessError(it.exception) },
             updateActivities,
             accessTokenFileName,
             activityIds.map(::ActivityId),

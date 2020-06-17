@@ -14,7 +14,7 @@ object AccessTokenFileNameBlankError : ListActivitiesError()
 
 data class TokenAccessError(val exception: Throwable) : ListActivitiesError()
 
-data class StravaApiError(val exception: Throwable) : ListActivitiesError()
+data class StravaError(val exception: Throwable) : ListActivitiesError()
 
 fun <F> MonadError<F, ListActivitiesError>.listActitivies(
     readAccessToken: (AccessTokenFileName) -> Kind<F, AccessToken>,

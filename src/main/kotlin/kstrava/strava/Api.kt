@@ -11,8 +11,6 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.grysz.kstrava.IOE
-import com.grysz.kstrava.ListActivitiesError
-import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.activities.Activity
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
@@ -26,6 +24,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import java.time.format.DateTimeFormatter.ISO_LOCAL_TIME
 import java.time.format.DateTimeFormatterBuilder
+
+data class StravaClientError(val exception: Throwable)
 
 data class ApiActivity(
     val id: Long,
@@ -51,13 +51,13 @@ data class ApiGear(val id: String, val name: String)
 fun getAthleteActivities(
     accessToken: AccessToken,
     baseUrl: String = "https://www.strava.com"
-): IOE<ListActivitiesError, List<ApiActivity>> = IO {
+): IOE<StravaClientError, List<ApiActivity>> = IO {
     val path = "$baseUrl/api/v3/athlete/activities"
 
     val (_, _, result) = Fuel.get(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .responseObject<List<ApiActivity>>()
-    result.fold({ it.right() }, { StravaApiError(it.exception).left() })
+    result.fold({ it.right() }, { StravaClientError(it.exception).left() })
 }
 
 fun updateAthleteActivity(
@@ -65,26 +65,26 @@ fun updateAthleteActivity(
     id: Long,
     activity: UpdatableApiActivity,
     baseUrl: String = "https://www.strava.com"
-): IOE<ListActivitiesError, ApiActivity> = IO {
+): IOE<StravaClientError, ApiActivity> = IO {
     val path = "$baseUrl/api/v3/activities/${id}"
 
     val (_, _, result) = Fuel.put(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .objectBody(activity)
         .responseObject<ApiActivity>()
-    result.fold({ it.right() }, { StravaApiError(it.exception).left() })
+    result.fold({ it.right() }, { StravaClientError(it.exception).left() })
 }
 
 fun getAthlete(
     accessToken: AccessToken,
     baseUrl: String = "https://www.strava.com"
-): IOE<ListActivitiesError, ApiAthlete> = IO {
+): IOE<StravaClientError, ApiAthlete> = IO {
     val path = "$baseUrl/api/v3/athlete"
 
     val (_, _, result) = Fuel.get(path)
         .header(Headers.AUTHORIZATION, "Bearer ${accessToken.token}")
         .responseObject<ApiAthlete>()
-    result.fold({ it.right() }, { StravaApiError(it.exception).left() })
+    result.fold({ it.right() }, { StravaClientError(it.exception).left() })
 }
 
 fun <F> Applicative<F>.getActivities(

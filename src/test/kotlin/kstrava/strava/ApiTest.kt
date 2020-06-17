@@ -13,7 +13,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import com.grysz.kstrava.IdApplicativeDependency
-import com.grysz.kstrava.StravaApiError
 import com.grysz.kstrava.activities.Activity
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
@@ -96,7 +95,7 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
-            expect(getAthleteActivities(accessToken, baseUrl())).runE.left.isA<StravaApiError>()
+            expect(getAthleteActivities(accessToken, baseUrl())).runE.left.isA<StravaClientError>()
         }
     }
 
@@ -161,7 +160,7 @@ class ApiTest {
                     activity = UpdatableApiActivity(""),
                     baseUrl = baseUrl()
                 )
-            ).runE.left.isA<StravaApiError>()
+            ).runE.left.isA<StravaClientError>()
         }
     }
 
@@ -214,7 +213,7 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
-            expect(getAthlete(accessToken, baseUrl())).runE.left.isA<StravaApiError>()
+            expect(getAthlete(accessToken, baseUrl())).runE.left.isA<StravaClientError>()
         }
     }
 }
