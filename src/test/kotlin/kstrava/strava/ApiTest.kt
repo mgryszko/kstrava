@@ -35,7 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDateTime
 import kotlin.test.Test
 
-private val accessToken = AccessToken("::token::")
+private val token = AccessToken("::token::")
 
 @TestInstance(Lifecycle.PER_CLASS)
 class ApiTest {
@@ -60,7 +60,7 @@ class ApiTest {
         fun ok() {
             wm.stubFor(
                 get(urlMatching("/api/v3/athlete/activities"))
-                    .withHeader("Authorization", equalTo("Bearer ${accessToken.token}"))
+                    .withHeader("Authorization", equalTo("Bearer ${token.token}"))
                     .willReturn(
                         okJson(
                             """[{
@@ -76,7 +76,7 @@ class ApiTest {
                     )
             )
 
-            expect(getAthleteActivities(accessToken, baseUrl())).runE.right.toBe(
+            expect(getAthleteActivities(token, baseUrl())).runE.right.toBe(
                 listOf(
                     ApiActivity(
                         id = 1,
@@ -95,7 +95,7 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
-            expect(getAthleteActivities(accessToken, baseUrl())).runE.left.isA<StravaClientError>()
+            expect(getAthleteActivities(token, baseUrl())).runE.left.isA<StravaClientError>()
         }
     }
 
@@ -106,7 +106,7 @@ class ApiTest {
         fun ok() {
             wm.stubFor(
                 put(urlMatching("/api/v3/activities/123"))
-                    .withHeader("Authorization", equalTo("Bearer ${accessToken.token}"))
+                    .withHeader("Authorization", equalTo("Bearer ${token.token}"))
                     .withRequestBody(
                         equalToJson(
                             """{
@@ -131,7 +131,7 @@ class ApiTest {
 
             expect(
                 updateAthleteActivity(
-                    accessToken = accessToken,
+                    token = token,
                     id = 123,
                     activity = UpdatableApiActivity(name = "::updated name::"),
                     baseUrl = baseUrl()
@@ -155,7 +155,7 @@ class ApiTest {
 
             expect(
                 updateAthleteActivity(
-                    accessToken = accessToken,
+                    token = token,
                     id = 0,
                     activity = UpdatableApiActivity(""),
                     baseUrl = baseUrl()
@@ -171,7 +171,7 @@ class ApiTest {
         fun ok() {
             wm.stubFor(
                 get(urlMatching("/api/v3/athlete"))
-                    .withHeader("Authorization", equalTo("Bearer ${accessToken.token}"))
+                    .withHeader("Authorization", equalTo("Bearer ${token.token}"))
                     .willReturn(
                         okJson(
                             """{
@@ -196,7 +196,7 @@ class ApiTest {
                     )
             )
 
-            expect(getAthlete(accessToken, baseUrl())).runE.right.toBe(
+            expect(getAthlete(token, baseUrl())).runE.right.toBe(
                 ApiAthlete(
                     bikes = listOf(
                         ApiGear("b0000001", "::bike1::"),
@@ -213,7 +213,7 @@ class ApiTest {
         fun unauthorized() {
             wm.stubFor(get(anyUrl()).willReturn(status(401)))
 
-            expect(getAthlete(accessToken, baseUrl())).runE.left.isA<StravaClientError>()
+            expect(getAthlete(token, baseUrl())).runE.left.isA<StravaClientError>()
         }
     }
 }
@@ -256,10 +256,10 @@ class GetActivitiesTest {
                 type = "::type::"
             )
         )
-        every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { getAthleteActivities(accessToken) } returns Id(apiActivities)
+        every { getAthlete(token) } returns Id(apiAthlete)
+        every { getAthleteActivities(token) } returns Id(apiActivities)
 
-        expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.toBe(activities)
+        expect(getActivities(getAthleteActivities, getAthlete, token)).value.toBe(activities)
     }
 
     @Test
@@ -280,10 +280,10 @@ class GetActivitiesTest {
             )
         )
 
-        every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { getAthleteActivities(accessToken) } returns Id(apiActivities)
+        every { getAthlete(token) } returns Id(apiAthlete)
+        every { getAthleteActivities(token) } returns Id(apiActivities)
 
-        expect(getActivities(getAthleteActivities, getAthlete, accessToken)).value.all {
+        expect(getActivities(getAthleteActivities, getAthlete, token)).value.all {
             feature { f(it::gear) }.toBe(null)
         }
     }
@@ -341,15 +341,15 @@ class UpdateActivitiesTest {
             startDate = LocalDateTime.of(2020, 1, 2, 3, 4, 5),
             type = "::type::"
         )
-        every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity1)
-        every { updateAthleteActivity(accessToken, 2, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity2)
+        every { getAthlete(token) } returns Id(apiAthlete)
+        every { updateAthleteActivity(token, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity1)
+        every { updateAthleteActivity(token, 2, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity2)
 
         expect(
             updateActivities(
                 updateAthleteActivity,
                 getAthlete,
-                accessToken,
+                token,
                 listOf(ActivityId(1), ActivityId(2)),
                 ActivityName("::updated name::")
             )
@@ -372,14 +372,14 @@ class UpdateActivitiesTest {
             type = ""
         )
 
-        every { getAthlete(accessToken) } returns Id(apiAthlete)
-        every { updateAthleteActivity(accessToken, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
+        every { getAthlete(token) } returns Id(apiAthlete)
+        every { updateAthleteActivity(token, 1, UpdatableApiActivity(name = "::updated name::")) } returns Id(apiActivity)
 
         expect(
             updateActivities(
                 updateAthleteActivity,
                 getAthlete,
-                accessToken,
+                token,
                 listOf(ActivityId(1)),
                 ActivityName("::updated name::")
             )

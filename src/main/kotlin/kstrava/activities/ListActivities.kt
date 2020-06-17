@@ -17,8 +17,8 @@ fun <F> MonadError<F, ActivitiesError>.listActitivies(
 ): Kind<F, List<Activity>> =
     fx.monad {
         val validated = !AccessTokenFileName.create(accessTokenFileName).mapError(this@listActitivies) { AccessTokenFileNameBlankError }
-        val accessToken = !readAccessToken(validated)
-        !getActivities(accessToken)
+        val token = !readAccessToken(validated)
+        !getActivities(token)
     }
 
 private fun <F, A, E, EE> MonadError<F, EE>.mapError(value: Validated<E, A>, fe: (E) -> (EE)): Kind<F, A> =

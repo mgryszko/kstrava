@@ -24,14 +24,14 @@ class ListActivitiesTest {
     val getActivities: (AccessToken) -> Kind<EitherPartialOf<ActivitiesError>, List<Activity>> = mockk("getActivities")
 
     val accessTokenFileName = "::file::"
-    val accessToken = AccessToken("::token::")
+    val token = AccessToken("::token::")
     val activities = listOf(anyActivity)
 
     @Test
     fun execute() {
         ME.run {
-            every { readAccessToken(AccessTokenFileName(accessTokenFileName)) } returns accessToken.right()
-            every { getActivities(accessToken) } returns activities.right()
+            every { readAccessToken(AccessTokenFileName(accessTokenFileName)) } returns token.right()
+            every { getActivities(token) } returns activities.right()
 
             expect(listActitivies(readAccessToken, getActivities, accessTokenFileName).fix()).right.toBe(activities)
         }
@@ -40,8 +40,8 @@ class ListActivitiesTest {
     @Test
     fun `invalid access token file name`() {
         ME.run {
-            every { readAccessToken(AccessTokenFileName(accessTokenFileName)) } returns accessToken.right()
-            every { getActivities(accessToken) } returns activities.right()
+            every { readAccessToken(AccessTokenFileName(accessTokenFileName)) } returns token.right()
+            every { getActivities(token) } returns activities.right()
 
             expect(listActitivies(readAccessToken, getActivities, "").fix()).left.toBe(AccessTokenFileNameBlankError)
         }

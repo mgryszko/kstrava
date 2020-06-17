@@ -15,7 +15,7 @@ fun <F> Monad<F>.updateActitivies(
     activityName: ActivityName
 ): Kind<F, List<Activity>> =
     fx.monad {
-        val accessToken = !readAccessToken(accessTokenFileName)
-        !updateActivities(accessToken, activityIds, activityName)
+        val token = !readAccessToken(accessTokenFileName)
+        !updateActivities(token, activityIds, activityName)
     }
 

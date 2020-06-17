@@ -77,12 +77,12 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val updateActivities = { accessToken: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
+    val updateActivities = { token: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
                 liftEitherT(::updateAthleteActivity).mapError(IO.functor()) { StravaError(it.exception) },
                 liftEitherT(::getAthlete).mapError(IO.functor()) { StravaError(it.exception) },
-                accessToken,
+                token,
                 activityIds,
                 activityName
             )
