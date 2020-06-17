@@ -12,7 +12,7 @@ sealed class ListActivitiesError
 
 object AccessTokenFileNameBlankError : ListActivitiesError()
 
-object TokenAccessError : ListActivitiesError()
+data class TokenAccessError(val exception: Throwable) : ListActivitiesError()
 
 data class StravaApiError(val exception: Throwable) : ListActivitiesError()
 
@@ -27,10 +27,10 @@ fun <F> MonadError<F, ListActivitiesError>.listActitivies(
         !getActivities(accessToken)
     }
 
-fun <F, A, E, EE> MonadError<F, EE>.mapError(value: Validated<E, A>, fe: (E) -> (EE)): Kind<F, A> =
+private fun <F, A, E, EE> MonadError<F, EE>.mapError(value: Validated<E, A>, fe: (E) -> (EE)): Kind<F, A> =
     value.fold({ e -> raiseError(fe(e))}, { it.just() })
 
-fun <F, A, E, EE> Validated<E, A>.mapError(AE: ApplicativeError<F, EE>, fe: (E) -> (EE)): Kind<F, A> =
+private fun <F, A, E, EE> Validated<E, A>.mapError(AE: ApplicativeError<F, EE>, fe: (E) -> (EE)): Kind<F, A> =
     fold({ e -> AE.raiseError(fe(e))}, { AE.just(it) })
 
 

@@ -1,8 +1,8 @@
 package com.grysz.kstrava.token
 
+import ch.tutteli.atrium.api.fluent.en_GB.isA
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
-import com.grysz.kstrava.TokenAccessError
 import com.grysz.kstrava.left
 import com.grysz.kstrava.right
 import com.grysz.kstrava.runE
@@ -25,7 +25,7 @@ class ReadTokenTest {
         }
 
         @Test
-        fun `read token`() {
+        fun read() {
             accessTokenFile.writeText("::token::")
             expect(readAccessTokenFN(AccessTokenFileName(accessTokenFile.canonicalPath))).runE.right.toBe(AccessToken("::token::"))
         }
@@ -35,8 +35,8 @@ class ReadTokenTest {
     @DisplayName("missing access token")
     inner class MissingAccessToken {
         @Test
-        fun `read token`() {
-            expect(readAccessTokenFN(AccessTokenFileName("non-existing"))).runE.left.toBe(TokenAccessError)
+        fun read() {
+            expect(readAccessTokenFN(AccessTokenFileName("non-existing"))).runE.left.isA<ReadTokenError>()
         }
     }
 }

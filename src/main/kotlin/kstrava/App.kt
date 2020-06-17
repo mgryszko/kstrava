@@ -25,6 +25,7 @@ import com.grysz.kstrava.strava.updateActivities
 import com.grysz.kstrava.strava.updateAthleteActivity
 import com.grysz.kstrava.table.printActivitiesTable
 import com.grysz.kstrava.token.AccessToken
+import com.grysz.kstrava.token.AccessTokenFileName
 import com.grysz.kstrava.token.readAccessToken
 import com.grysz.kstrava.token.readAccessTokenFN
 
@@ -39,7 +40,9 @@ fun <E, F, A, B, C, D> liftEitherT(f: (A, B, C) -> Kind<F, Either<E, D>>): (A, B
 fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
     val ME: MonadError<EitherTPartialOf<ListActivitiesError, ForIO>, ListActivitiesError> = EitherT.monadError(IO.monad())
-    val readAccessToken = liftEitherT(::readAccessTokenFN)
+    val readAccessToken: (AccessTokenFileName) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, AccessToken> = { fileName ->
+        EitherT(readAccessTokenFN(fileName)).mapLeft(IO.functor()) { TokenAccessError(it.exception) }
+    }
     val getActivities = { accessToken: AccessToken ->
         C.parApplicative(dispatchers().io()).run {
             getActivities(
@@ -66,6 +69,9 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ListActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
+    val readAccessToken: (String) -> Kind<EitherTPartialOf<ListActivitiesError, ForIO>, AccessToken> = { fileName ->
+        EitherT(readAccessToken(fileName)).mapLeft(IO.functor()) { TokenAccessError(it.exception) }
+    }
     val updateActivities = { accessToken: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
@@ -79,7 +85,7 @@ fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, na
     }
     val maybeActivities = C.run {
         updateActitivies(
-            liftEitherT(::readAccessToken),
+            readAccessToken,
             updateActivities,
             accessTokenFileName,
             activityIds.map(::ActivityId),
