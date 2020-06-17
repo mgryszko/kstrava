@@ -1,20 +1,14 @@
-package com.grysz.kstrava
+package com.grysz.kstrava.kstrava.activities
 
 import arrow.Kind
 import arrow.core.Validated
 import arrow.typeclasses.ApplicativeError
 import arrow.typeclasses.MonadError
+import com.grysz.kstrava.activities.AccessTokenFileNameBlankError
 import com.grysz.kstrava.activities.Activity
+import com.grysz.kstrava.activities.ListActivitiesError
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.AccessTokenFileName
-
-sealed class ListActivitiesError
-
-object AccessTokenFileNameBlankError : ListActivitiesError()
-
-data class TokenAccessError(val exception: Throwable) : ListActivitiesError()
-
-data class StravaError(val exception: Throwable) : ListActivitiesError()
 
 fun <F> MonadError<F, ListActivitiesError>.listActitivies(
     readAccessToken: (AccessTokenFileName) -> Kind<F, AccessToken>,

@@ -19,6 +19,11 @@ import arrow.typeclasses.Functor
 import arrow.typeclasses.MonadError
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
+import com.grysz.kstrava.activities.ListActivitiesError
+import com.grysz.kstrava.activities.StravaError
+import com.grysz.kstrava.activities.TokenAccessError
+import com.grysz.kstrava.kstrava.activities.listActitivies
+import com.grysz.kstrava.kstrava.activities.updateActitivies
 import com.grysz.kstrava.strava.getActivities
 import com.grysz.kstrava.strava.getAthlete
 import com.grysz.kstrava.strava.getAthleteActivities

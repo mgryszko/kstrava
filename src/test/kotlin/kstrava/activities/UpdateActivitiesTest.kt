@@ -9,6 +9,7 @@ import ch.tutteli.atrium.api.verbs.expect
 import com.grysz.kstrava.activities.Activity
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
+import com.grysz.kstrava.kstrava.activities.updateActitivies
 import com.grysz.kstrava.token.AccessToken
 import io.mockk.every
 import io.mockk.mockk

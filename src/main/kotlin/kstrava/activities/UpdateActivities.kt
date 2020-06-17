@@ -1,4 +1,4 @@
-package com.grysz.kstrava
+package com.grysz.kstrava.kstrava.activities
 
 import arrow.Kind
 import arrow.typeclasses.Monad
