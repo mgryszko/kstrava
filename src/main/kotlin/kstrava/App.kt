@@ -32,7 +32,6 @@ import com.grysz.kstrava.strava.updateAthleteActivity
 import com.grysz.kstrava.table.printActivitiesTable
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.readAccessToken
-import com.grysz.kstrava.token.readAccessTokenFN
 
 typealias IOE<A, B> = IO<Either<A, B>>
 
@@ -63,7 +62,7 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 
     val maybeActivities = ME.run {
         listActitivies(
-            liftEitherT(::readAccessTokenFN).mapError(IO.functor()) { TokenAccessError(it.exception) },
+            liftEitherT(::readAccessToken).mapError(IO.functor()) { TokenAccessError(it.exception) },
             getActivities,
             accessTokenFileName
         ).fix()
@@ -77,6 +76,7 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
     val C: Concurrent<EitherTPartialOf<ActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
+    val ME: MonadError<EitherTPartialOf<ActivitiesError, ForIO>, ActivitiesError> = EitherT.monadError(IO.monad())
     val updateActivities = { token: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
@@ -88,7 +88,7 @@ fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, na
             )
         }
     }
-    val maybeActivities = C.run {
+    val maybeActivities = ME.run {
         updateActitivies(
             liftEitherT(::readAccessToken).mapError(IO.functor()) { TokenAccessError(it.exception) },
             updateActivities,

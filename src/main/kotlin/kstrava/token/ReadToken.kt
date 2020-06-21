@@ -7,11 +7,7 @@ import java.io.File
 
 data class ReadTokenError(val exception: Throwable)
 
-fun readAccessToken(fileName: String): IOE<ReadTokenError, AccessToken> = IO {
-    Either.catch(::ReadTokenError) { AccessToken(File(fileName).readText()) }
-}
-
-fun readAccessTokenFN(fileName: AccessTokenFileName): IOE<ReadTokenError, AccessToken> = IO {
+fun readAccessToken(fileName: AccessTokenFileName): IOE<ReadTokenError, AccessToken> = IO {
     Either.catch(::ReadTokenError) { AccessToken(fileName.toFile().readText()) }
 }
 
