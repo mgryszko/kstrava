@@ -7,6 +7,7 @@ import com.grysz.kstrava.activities.ActivitiesError
 import com.grysz.kstrava.activities.Activity
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
+import com.grysz.kstrava.activities.EmptyActivityIdsError
 import com.grysz.kstrava.mapError
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.AccessTokenFileName
@@ -19,8 +20,9 @@ fun <F> MonadError<F, ActivitiesError>.updateActitivies(
     activityName: ActivityName
 ): Kind<F, List<Activity>> =
     fx.monad {
-        val validated = !AccessTokenFileName.create(accessTokenFileName).mapError(this@updateActitivies) { AccessTokenFileNameBlankError }
-        val token = !readAccessToken(validated)
-        !updateActivities(token, activityIds, activityName)
+        val validActivityIds = !(if (activityIds.isEmpty()) raiseError(EmptyActivityIdsError) else activityIds.just())
+        val validFileName = !AccessTokenFileName.create(accessTokenFileName).mapError(this@updateActitivies) { AccessTokenFileNameBlankError }
+        val token = !readAccessToken(validFileName)
+        !updateActivities(token, validActivityIds, activityName)
     }
 

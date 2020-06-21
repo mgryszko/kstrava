@@ -13,6 +13,7 @@ import com.grysz.kstrava.activities.ActivitiesError
 import com.grysz.kstrava.activities.Activity
 import com.grysz.kstrava.activities.ActivityId
 import com.grysz.kstrava.activities.ActivityName
+import com.grysz.kstrava.activities.EmptyActivityIdsError
 import com.grysz.kstrava.kstrava.activities.updateActitivies
 import com.grysz.kstrava.token.AccessToken
 import com.grysz.kstrava.token.AccessTokenFileName
@@ -39,6 +40,14 @@ class UpdateActivitiesTest {
 
             expect(updateActitivies(readAccessToken, updateActivities, accessTokenFileName, activityIds, activityName).fix())
                 .right.toBe(activities)
+        }
+    }
+    
+    @Test
+    fun `empty activity ids`() {
+        ME.run {
+            expect(updateActitivies(readAccessToken, updateActivities, accessTokenFileName, emptyList(), activityName).fix())
+                .left.toBe(EmptyActivityIdsError)
         }
     }
 
