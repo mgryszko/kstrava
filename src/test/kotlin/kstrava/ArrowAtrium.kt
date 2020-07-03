@@ -3,6 +3,7 @@ package com.grysz.kstrava
 import arrow.Kind
 import arrow.core.Either
 import arrow.core.ForId
+import arrow.core.Validated
 import arrow.core.fix
 import arrow.core.value
 import arrow.fx.IO
@@ -25,4 +26,7 @@ val <A, B> Expect<Either<A, B>>.right: Expect<B>
 
 val <A, B> Expect<Either<A, B>>.left: Expect<A>
     get() = isA<Either.Left<A>>().feature { f(it::a) }
+
+val <E, A> Expect<Validated<E, A>>.invalid: Expect<E>
+    get() = isA<Validated.Invalid<E>>().feature { f(it::e) }
 
