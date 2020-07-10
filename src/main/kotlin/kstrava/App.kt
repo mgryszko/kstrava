@@ -2,6 +2,8 @@ package com.grysz.kstrava
 
 import arrow.Kind
 import arrow.core.Either
+import arrow.core.Nel
+import arrow.core.nel
 import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.extensions.io.concurrent.concurrent
@@ -75,13 +77,13 @@ fun listActivitiesApp(accessTokenFileName: String): IO<Unit> {
 }
 
 fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, name: String): IO<Unit> {
-    val C: Concurrent<EitherTPartialOf<ActivitiesError, ForIO>> = EitherT.concurrent(IO.concurrent())
-    val ME: MonadError<EitherTPartialOf<ActivitiesError, ForIO>, ActivitiesError> = EitherT.monadError(IO.monad())
+    val C: Concurrent<EitherTPartialOf<Nel<ActivitiesError>, ForIO>> = EitherT.concurrent(IO.concurrent())
+    val ME: MonadError<EitherTPartialOf<Nel<ActivitiesError>, ForIO>, Nel<ActivitiesError>> = EitherT.monadError(IO.monad())
     val updateActivities = { token: AccessToken, activityIds: List<ActivityId>, activityName: ActivityName ->
         C.parApplicative(dispatchers().io()).run {
             updateActivities(
-                liftEitherT(::updateAthleteActivity).mapError(IO.functor()) { StravaError(it.exception) },
-                liftEitherT(::getAthlete).mapError(IO.functor()) { StravaError(it.exception) },
+                liftEitherT(::updateAthleteActivity).mapError(IO.functor()) { StravaError(it.exception).nel() },
+                liftEitherT(::getAthlete).mapError(IO.functor()) { StravaError(it.exception).nel() },
                 token,
                 activityIds,
                 activityName
@@ -90,7 +92,7 @@ fun updateActivitiesApp(accessTokenFileName: String, activityIds: List<Long>, na
     }
     val maybeActivities = ME.run {
         updateActitivies(
-            liftEitherT(::readAccessToken).mapError(IO.functor()) { TokenAccessError(it.exception) },
+            liftEitherT(::readAccessToken).mapError(IO.functor()) { TokenAccessError(it.exception).nel() },
             updateActivities,
             accessTokenFileName,
             activityIds.map(::ActivityId),

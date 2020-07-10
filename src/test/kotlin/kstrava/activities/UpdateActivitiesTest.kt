@@ -6,6 +6,7 @@ import arrow.core.EitherPartialOf
 import arrow.core.Nel
 import arrow.core.Tuple2
 import arrow.core.Validated
+import arrow.core.extensions.either.applicativeError.applicativeError
 import arrow.core.extensions.either.monadError.monadError
 import arrow.core.extensions.nonemptylist.semigroup.semigroup
 import arrow.core.extensions.validated.applicativeError.applicativeError
@@ -30,9 +31,9 @@ import io.mockk.mockk
 import kotlin.test.Test
 
 class UpdateActivitiesTest {
-    val ME = Either.monadError<ActivitiesError>()
-    val readAccessToken: (AccessTokenFileName) -> Kind<EitherPartialOf<ActivitiesError>, AccessToken> = mockk("readAccessToken")
-    val updateActivities: (AccessToken, List<ActivityId>, ActivityName) -> Kind<EitherPartialOf<ActivitiesError>, List<Activity>> =
+    val ME = Either.monadError<Nel<ActivitiesError>>()
+    val readAccessToken: (AccessTokenFileName) -> Kind<EitherPartialOf<Nel<ActivitiesError>>, AccessToken> = mockk("readAccessToken")
+    val updateActivities: (AccessToken, List<ActivityId>, ActivityName) -> Kind<EitherPartialOf<Nel<ActivitiesError>>, List<Activity>> =
         mockk("updateActivities")
 
     val accessTokenFileName = "::file::"
@@ -50,27 +51,19 @@ class UpdateActivitiesTest {
                 .right.toBe(activities)
         }
     }
-    
-    @Test
-    fun `empty activity ids`() {
-        ME.run {
-            expect(updateActitivies(readAccessToken, updateActivities, accessTokenFileName, emptyList(), activityName).fix())
-                .left.toBe(EmptyActivityIdsError)
-        }
-    }
 
     @Test
-    fun `invalid access token file name`() {
+    fun `invalid arguments`() {
         ME.run {
-            expect(updateActitivies(readAccessToken, updateActivities, "", activityIds, activityName).fix())
-                .left.toBe(AccessTokenFileNameBlankError)
+            expect(updateActitivies(readAccessToken, updateActivities, "", emptyList(), activityName).fix())
+                .left.toBe(Nel(EmptyActivityIdsError, AccessTokenFileNameBlankError))
         }
     }
 }
 
-class UpdateActivitiesValidationTest {
-    val ME = Either.monadError<Nel<ActivitiesError>>()
+class AccumulatingVsShortcircuitingValidationTest {
     val AE = Validated.applicativeError(Nel.semigroup<ActivitiesError>())
+    val ME = Either.applicativeError<Nel<ActivitiesError>>()
 
     @Test
     fun `accumulate errors`() {
@@ -86,7 +79,10 @@ class UpdateActivitiesValidationTest {
         }
     }
 
-    private fun <F> ApplicativeError<F, Nel<ActivitiesError>>.validate(activityIds: List<ActivityId>, accessTokenFileName: String): Kind<F, Tuple2<List<ActivityId>, AccessTokenFileName>> {
+    private fun <F> ApplicativeError<F, Nel<ActivitiesError>>.validate(
+        activityIds: List<ActivityId>,
+        accessTokenFileName: String
+    ): Kind<F, Tuple2<List<ActivityId>, AccessTokenFileName>> {
         val validActivityIds = if (activityIds.isEmpty()) raiseError(EmptyActivityIdsError.nel()) else activityIds.just()
         val validFileName = AccessTokenFileName.create(accessTokenFileName)
             .mapLeft { AccessTokenFileNameBlankError }
