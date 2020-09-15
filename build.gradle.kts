@@ -16,7 +16,7 @@ repositories {
 }
 
 object Versions {
-    const val arrow = "0.10.5"
+    const val arrow = "0.11.0"
     const val clickt = "2.5.0"
     const val fuel = "2.2.0"
     const val jackson = "2.10.2"
@@ -36,10 +36,11 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:${Versions.jackson}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jackson}")
     implementation("com.github.ajalt:clikt:${Versions.clickt}")
-    implementation("io.arrow-kt:arrow-fx:${Versions.arrow}")
-    implementation("io.arrow-kt:arrow-mtl:${Versions.arrow}")
-    implementation("io.arrow-kt:arrow-fx-mtl:${Versions.arrow}")
-    implementation("io.arrow-kt:arrow-syntax:${Versions.arrow}")
+    implementation(platform("io.arrow-kt:arrow-stack:${Versions.arrow}"))
+    implementation("io.arrow-kt:arrow-fx")
+    implementation("io.arrow-kt:arrow-mtl")
+    implementation("io.arrow-kt:arrow-fx-mtl")
+    implementation("io.arrow-kt:arrow-syntax")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
@@ -55,6 +56,12 @@ compileKotlin.kotlinOptions {
     languageVersion = "1.3"
     jvmTarget = "11"
     freeCompilerArgs += listOf("-Xnew-inference")
+}
+
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    languageVersion = "1.3"
+    jvmTarget = "11"
 }
 
 tasks.test {
