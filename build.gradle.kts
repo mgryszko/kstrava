@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.3.72"
+    id("org.jetbrains.kotlin.jvm") version "1.4.10"
     id("com.github.ben-manes.versions") version "0.28.0"
     id("com.github.johnrengelman.shadow") version "5.2.0"
 
@@ -53,14 +53,14 @@ dependencies {
 
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    languageVersion = "1.3"
+    languageVersion = "1.4"
     jvmTarget = "11"
     freeCompilerArgs += listOf("-Xnew-inference")
 }
 
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    languageVersion = "1.3"
+    languageVersion = "1.4"
     jvmTarget = "11"
 }
 
